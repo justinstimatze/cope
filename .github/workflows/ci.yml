@@ -38,7 +38,7 @@ jobs:
           repository: justinstimatze/effigy
           ref: v0.7.0
           path: .effigy
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.x'
       - name: card/rules.json matches card/claude_voice.effigy
