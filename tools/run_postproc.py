@@ -5,23 +5,15 @@ Uses effigy's own validators path (validators_from_ast + validate), not a
 re-implementation, so what gets tested is the code the hook would call.
 """
 import json
-import os
 import sys
 from collections import Counter, defaultdict
 
-# A sibling checkout by default, matching tools/card2json.py.
-EFFIGY_PATH = os.environ.get("EFFIGY_PATH", "../effigy")
-sys.path.insert(0, EFFIGY_PATH)
+from effigy_bootstrap import require_effigy
 
-try:
-    from effigy.parser import parse_file  # noqa: E402
-    from effigy.validators import validate, validators_from_ast  # noqa: E402
-except ImportError:
-    sys.exit(
-        f"error: no effigy checkout at {EFFIGY_PATH}\n"
-        "clone https://github.com/justinstimatze/effigy and point EFFIGY_PATH at it:\n"
-        "  EFFIGY_PATH=/path/to/effigy python3 tools/run_postproc.py ..."
-    )
+require_effigy("run_postproc.py")
+
+from effigy.parser import parse_file  # noqa: E402
+from effigy.validators import validate, validators_from_ast  # noqa: E402
 
 CARD = sys.argv[1]
 TRANSCRIPT = sys.argv[2]

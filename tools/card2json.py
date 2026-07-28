@@ -8,21 +8,13 @@ keeps a second .effigy parser out of the Go side.
     python3 tools/card2json.py card/claude_voice.effigy card/rules.json
 """
 import json
-import os
 import sys
 
-# A sibling checkout by default, which is the layout `make rules` assumes.
-EFFIGY_PATH = os.environ.get("EFFIGY_PATH", "../effigy")
-sys.path.insert(0, EFFIGY_PATH)
+from effigy_bootstrap import require_effigy
 
-try:
-    from effigy.parser import parse_file  # noqa: E402
-except ImportError:
-    sys.exit(
-        f"error: no effigy checkout at {EFFIGY_PATH}\n"
-        "clone https://github.com/justinstimatze/effigy and point EFFIGY_PATH at it:\n"
-        "  EFFIGY_PATH=/path/to/effigy python3 tools/card2json.py ..."
-    )
+require_effigy("card2json.py")
+
+from effigy.parser import parse_file  # noqa: E402
 
 if len(sys.argv) != 3:
     sys.exit(f"usage: {sys.argv[0]} <card.effigy> <out.json>")

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- `tools/effigy_bootstrap.py` holds the effigy-path contract that
+  `card2json.py` and `run_postproc.py` each carried a copy of. The copies had
+  already drifted once — the sibling-checkout default landed in one before the
+  other. adit flagged the duplicate `EFFIGY_PATH` definition, calque flagged
+  the shared seam.
+
 ## v0.2.0 (2026-07-28) — works on a machine that isn't mine
 
 A public-readiness pass. The two items at the top are the ones that made the
