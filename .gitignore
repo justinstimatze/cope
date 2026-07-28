@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+bin/
+
+# violations.jsonl now defaults to $XDG_STATE_HOME/cope. Kept here for
+# checkouts that predate the move, and because --log can point anywhere.
+violations.jsonl
+
+# CI clones effigy here to check card/rules.json against the .effigy source.
+.effigy/
+
+# Measurement scratch that hardcodes one machine's transcript layout.
+tools/eot-measure/
