@@ -136,18 +136,32 @@ def main():
 
     draft = ""
     for round_no in range(args.rounds + 1):
-        resp = client.messages.create(
+        # 16384 truncated the front page mid-sentence on 2026-08-03. The maximal
+        # card is instructed to say everything three times, so it is the one
+        # render that runs long. Above that ceiling the SDK requires streaming,
+        # which is the right call for a request this size anyway — get_final_message
+        # reassembles it, so nothing downstream changes.
+        with client.messages.stream(
             model=args.model,
-            max_tokens=16384,
+            max_tokens=32768,
             system=system_blocks,
             messages=messages,
-        )
+        ) as stream:
+            resp = stream.get_final_message()
         draft = response_text(resp)
         u = resp.usage
         cached = getattr(u, "cache_read_input_tokens", 0) or 0
         print(f"round {round_no}: {len(draft)} chars "
               f"(in {u.input_tokens} + {cached} cached, out {u.output_tokens})",
               file=sys.stderr)
+
+        # A draft cut off at the token ceiling still scores clean, so the gate
+        # cannot catch this and the file gets written and committed with a
+        # sentence hanging. Refuse to write it.
+        if resp.stop_reason == "max_tokens":
+            sys.exit(f"error: the draft hit max_tokens ({u.output_tokens}) and is "
+                     f"truncated — raise max_tokens; nothing was written to "
+                     f"{args.target}")
 
         args.target.write_text(draft + "\n")
         report = check(args.target)

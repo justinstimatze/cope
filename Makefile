@@ -189,12 +189,26 @@ endif
 # This ran through tools/card2json.py until 2026-08-02 and so needed an effigy
 # checkout to render a demo — a build step between having a card and reading
 # what it does, in the one target whose whole purpose is showing that.
+# The six renders share nothing but the binary and the API key, so they run
+# concurrently. Sequentially this target took about ten minutes; three at once
+# measured 203s on 2026-08-03, and the wall clock is now the slowest single
+# render rather than the sum. Backgrounded explicitly rather than through -j so
+# it does not depend on how the caller invokes make.
 demo: build
-	$(MAKE) readme CARD=card/demo/laconic.effigy         TARGET=demo/README.laconic.md         ROUNDS=0
-	$(MAKE) readme CARD=card/demo/precise.effigy         TARGET=demo/README.precise.md         ROUNDS=0
-	$(MAKE) readme CARD=card/demo/caveman.effigy         TARGET=demo/README.caveman.md         ROUNDS=0
-	$(MAKE) readme CARD=card/demo/lecturer.effigy        TARGET=demo/README.lecturer.md        ROUNDS=0
-	$(MAKE) readme CARD=card/demo/claude_maximal.effigy  TARGET=demo/README.claude-maximal.md  ROUNDS=0
-	$(MAKE) readme CARD=card/claude_voice.effigy         TARGET=demo/README.claude-voice.md    ROUNDS=0
+	@set -e; pids=""; \
+	for spec in \
+	  "card/demo/laconic.effigy:demo/README.laconic.md" \
+	  "card/demo/precise.effigy:demo/README.precise.md" \
+	  "card/demo/caveman.effigy:demo/README.caveman.md" \
+	  "card/demo/lecturer.effigy:demo/README.lecturer.md" \
+	  "card/demo/claude_maximal.effigy:demo/README.claude-maximal.md" \
+	  "card/claude_voice.effigy:demo/README.claude-voice.md" ; do \
+	  card=$${spec%%:*}; target=$${spec##*:}; \
+	  echo "  render $$card -> $$target"; \
+	  $(PYTHON) tools/generate_readme.py --rules "$$card" --target "$$target" --rounds 0 & \
+	  pids="$$pids $$!"; \
+	done; \
+	fail=0; for p in $$pids; do wait $$p || fail=1; done; \
+	test $$fail -eq 0 || { echo "at least one render failed" >&2; exit 1; }
 	@echo
 	@for f in README.md demo/README.*.md; do ./bin/cope-gate --check $$f --log "" | head -1; done
