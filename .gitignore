@@ -32,3 +32,6 @@ pairs.json
 # real prompts, real conversation, two generated replies to each.
 /discriminate/
 discriminate.html
+
+# local backlog — ideas and held-back work, not part of the release
+BACKLOG.md
