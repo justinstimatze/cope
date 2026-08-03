@@ -25,7 +25,6 @@ GATE = REPO / "bin" / "cope-gate"
 CARDS = [
     ("card/claude_voice.effigy", "demo/README.claude-voice.md"),
     ("card/demo/claude_maximal.effigy", "demo/README.claude-maximal.md"),
-    ("card/demo/laconic.effigy", "demo/README.laconic.md"),
     ("card/demo/precise.effigy", "demo/README.precise.md"),
     ("card/demo/caveman.effigy", "demo/README.caveman.md"),
     ("card/demo/lecturer.effigy", "demo/README.lecturer.md"),

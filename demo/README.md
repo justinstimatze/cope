@@ -46,22 +46,27 @@ What that does not say is that the card is good. It says a card changes the
 prose enough to be identified from its own description, which is the
 precondition every other claim needs.
 
-## The other four
+## The other three
 
-`laconic` is the Spartan register, after
+`precise` compresses by vocabulary, naming mechanisms with their terms of art
+and glossing none of them. `caveman` compresses by grammar, dropping articles,
+copulas and auxiliaries. `lecturer` does not compress at all; it differs from
+the shipped card on register alone, which is what made it usable as the rival
+above.
+
+`card/demo/laconic.effigy` is installed by `make cards` and no longer rendered.
+It is the Spartan register, after
 [Laconia](https://en.wikipedia.org/wiki/Laconic_phrase) — answer what was
-asked, never explain the answer, stop. `precise` compresses by vocabulary,
-naming mechanisms with their terms of art and glossing none of them. `caveman`
-compresses by grammar, dropping articles, copulas and auxiliaries. `lecturer`
-does not compress at all; it differs from the shipped card on register alone,
-which is what made it usable as the rival above.
+asked, never explain the answer, stop — and it was the original discrimination
+rival until `lecturer` replaced it, because a four-word answer lets a judge
+score full marks without forming a view about voice. A page written from it
+demonstrated brevity, which its own first line already says.
 
 <!-- sizes:start -->
 | Card | Output | Characters |
 |---|---|---|
 | `card/claude_voice.effigy` | [`README.claude-voice.md`](README.claude-voice.md) | 21,676 |
 | `card/demo/claude_maximal.effigy` | [`README.claude-maximal.md`](README.claude-maximal.md) | 30,526 |
-| `card/demo/laconic.effigy` | [`README.laconic.md`](README.laconic.md) | 18,737 |
 | `card/demo/precise.effigy` | [`README.precise.md`](README.precise.md) | 19,412 |
 | `card/demo/caveman.effigy` | [`README.caveman.md`](README.caveman.md) | 18,332 |
 | `card/demo/lecturer.effigy` | [`README.lecturer.md`](README.lecturer.md) | 23,362 |
@@ -95,7 +100,7 @@ what survived, which is the same trade the rest of this repo makes.
 
 ## The gate is blind to the markup and not to the words
 
-`claude_maximal` scores 15, worst of the six and nearly four times the shipped
+`claude_maximal` scores 15, worst of the five and nearly four times the shipped
 card's 4. That is a recent change and the way it changed is the useful part.
 
 For most of this card's life it scored **clean**, then 2, while instructing every
@@ -146,10 +151,10 @@ from anything you can see at a glance.
 
 ## Five rules of sixteen
 
-Count the rules that fired across all six renders and the answer is five, two of
-which carry it: `clause_symmetry` 18, `labelled_opening` 12, then `flip` 5,
+Count the rules that fired across all five renders and the answer is five, two
+of which carry it: `clause_symmetry` 18, `labelled_opening` 10, then `flip` 5,
 `load_bearing` 3 and `apology` 1. Nothing else in the gate found anything, in
-132,000 characters written six different ways.
+113,000 characters written five different ways.
 
 That says more about the artifact than about any card. Four of the structure
 rules — `ask_not_last`, `dangling_end`, `buried_decision`, `forked_end` — read
@@ -163,7 +168,7 @@ Sixteen counts thirteen compiled into the binary plus the shipped card's three
 POSTPROC patterns. Two of those three fire here — `flip` and `load_bearing` —
 and both fire hardest on the joke card, after it was told to reach for the
 phrases by name. Before that instruction neither had ever fired on this page.
-`worth_noting` fires on none of the six, which is the one phrase rule with
+`worth_noting` fires on none of the five, which is the one phrase rule with
 nothing to show for itself so far.
 
 `apology` is the one to notice, because it wants a reply with something to be

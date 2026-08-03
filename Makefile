@@ -158,7 +158,7 @@ PYTHON ?= $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,python3)
 #   python3 -m venv ~/.venvs/cope && ~/.venvs/cope/bin/pip install anthropic
 #
 # CARD and TARGET point it at a different card, which is how demo/ is built:
-#   make readme CARD=card/demo/laconic.effigy TARGET=demo/README.laconic.md
+#   make readme CARD=card/demo/precise.effigy TARGET=demo/README.precise.md
 #
 # With no CARD, this writes the FRONT PAGE, and the front page is deliberately
 # the maximal card: a README written in the register cope exists to fix states
@@ -180,7 +180,7 @@ endif
 
 # demo writes the README again from every card in card/demo/ and scores them
 # all, so a reader can A/B the shipped card against the others and see the
-# gate's verdict on each. laconic and caveman cut an answer by removing things;
+# gate's verdict on each. caveman cuts an answer by removing things;
 # precise cuts it by replacing them; lecturer does not cut at all and differs
 # from the shipped card only in register, which is what makes it the one usable
 # as a discrimination rival.
@@ -197,7 +197,6 @@ endif
 demo: build
 	@set -e; pids=""; \
 	for spec in \
-	  "card/demo/laconic.effigy:demo/README.laconic.md" \
 	  "card/demo/precise.effigy:demo/README.precise.md" \
 	  "card/demo/caveman.effigy:demo/README.caveman.md" \
 	  "card/demo/lecturer.effigy:demo/README.lecturer.md" \
