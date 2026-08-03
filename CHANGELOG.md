@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.1 (2026-08-03) — the first screen said one step twice
+
+- **`--setup` printed the remaining step in two wordings, one from the style
+  emitter and one from its own closing block.** On the first surface a new
+  install shows anyone, the same instruction appearing twice reads as two
+  separate steps. `runOutputStyle` takes a `quiet` flag; standalone
+  `--output-style` still prints it, because there nothing else will.
+
 ## v0.4.0 (2026-08-03) — the card arrives where the model reads it
 
 - **The card is delivered as a Claude Code output style, which is where it
