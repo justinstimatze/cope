@@ -54,7 +54,7 @@ func TestStyleDescriptionSurvivesAThemeWithAColon(t *testing.T) {
 func TestStyleWritesUnderTheCardID(t *testing.T) {
 	dir := t.TempDir()
 	c := &scan.Card{CardID: "caveman", Theme: "Few words."}
-	if rc := runOutputStyle(c, dir); rc != 0 {
+	if rc := runOutputStyle(c, dir, false); rc != 0 {
 		t.Fatalf("rc = %d", rc)
 	}
 	b, err := os.ReadFile(filepath.Join(dir, "caveman.md"))

@@ -79,7 +79,7 @@ func runSetup(c *scan.Card, dryRun bool) int {
 
 	// 1. the style, which is how the card actually arrives
 	if !dryRun {
-		if rc := runOutputStyle(c, ""); rc != 0 {
+		if rc := runOutputStyle(c, "", true); rc != 0 {
 			return rc
 		}
 	} else {

@@ -99,7 +99,7 @@ func frontmatterSafe(s string) string {
 // to do next. It prints the path rather than editing any settings file: which
 // style is active is the reader's choice and lives in their settings, and a
 // tool that installs a voice should not also be the thing that turns it on.
-func runOutputStyle(c *scan.Card, dir string) int {
+func runOutputStyle(c *scan.Card, dir string, quiet bool) int {
 	if dir == "" {
 		dir = stylesDir()
 	}
@@ -117,6 +117,12 @@ func runOutputStyle(c *scan.Card, dir string) int {
 		return 1
 	}
 	fmt.Printf("wrote %s\n", path)
+	if quiet {
+		// --setup calls this and then prints the same instruction in its own
+		// closing block. Saying it twice, in two wordings, reads as two
+		// different steps to someone seeing it for the first time.
+		return 0
+	}
 	fmt.Printf("turn it on with /config -> Output style -> %s, or set\n", styleName(c))
 	fmt.Printf("  \"outputStyle\": %q\n", styleName(c))
 	fmt.Println("in .claude/settings.local.json. It applies at the next session or after /clear.")

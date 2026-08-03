@@ -203,7 +203,7 @@ func main() {
 	}
 
 	if *opt.outputStyle {
-		os.Exit(runOutputStyle(c, *opt.styleDir))
+		os.Exit(runOutputStyle(c, *opt.styleDir, false))
 	}
 
 	if *inject {
