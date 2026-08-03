@@ -11,16 +11,18 @@ facts. Only the card changed. Build them with `make demo`.
 whole demo, and it takes about thirty seconds. Same facts, same prompt, same
 generator, same model. What you can count on the page:
 
+<!-- side-by-side:start -->
 | | `claude_maximal` | `claude_voice` |
 |---|---|---|
-| paragraphs opening on a bold label | 46 | 0 |
-| em dashes | 70 | 38 |
+| paragraphs opening on a bold label | 52 | 0 |
+| em dashes | 87 | 40 |
 | headings carrying an emoji | 13 | 0 |
 | horizontal rules | 18 | 1 |
-| tables for things that are not tabular | 5 | 0 |
-| blockquote callouts | 3 | 0 |
-| emoji in the body text | 16 | 0 |
-| sentences apologising or taking the blame | 10 | 0 |
+| tables for things that are not tabular | 4 | 0 |
+| blockquote callouts | 2 | 0 |
+| emoji in the body text | 23 | 0 |
+| sentences apologising or taking the blame | 20 | 0 |
+<!-- side-by-side:end -->
 
 The repository's front page is the maximal render on purpose —
 [`../README.md`](../README.md) is written from `card/demo/claude_maximal.effigy`,
@@ -54,14 +56,16 @@ compresses by grammar, dropping articles, copulas and auxiliaries. `lecturer`
 does not compress at all; it differs from the shipped card on register alone,
 which is what made it usable as the rival above.
 
+<!-- sizes:start -->
 | Card | Output | Characters |
 |---|---|---|
-| `card/claude_voice.effigy` | [`README.claude-voice.md`](README.claude-voice.md) | 21,918 |
-| `card/demo/claude_maximal.effigy` | [`README.claude-maximal.md`](README.claude-maximal.md) | 29,439 |
-| `card/demo/laconic.effigy` | [`README.laconic.md`](README.laconic.md) | 19,469 |
-| `card/demo/precise.effigy` | [`README.precise.md`](README.precise.md) | 20,609 |
-| `card/demo/caveman.effigy` | [`README.caveman.md`](README.caveman.md) | 18,844 |
-| `card/demo/lecturer.effigy` | [`README.lecturer.md`](README.lecturer.md) | 23,318 |
+| `card/claude_voice.effigy` | [`README.claude-voice.md`](README.claude-voice.md) | 21,676 |
+| `card/demo/claude_maximal.effigy` | [`README.claude-maximal.md`](README.claude-maximal.md) | 30,526 |
+| `card/demo/laconic.effigy` | [`README.laconic.md`](README.laconic.md) | 18,737 |
+| `card/demo/precise.effigy` | [`README.precise.md`](README.precise.md) | 19,412 |
+| `card/demo/caveman.effigy` | [`README.caveman.md`](README.caveman.md) | 18,332 |
+| `card/demo/lecturer.effigy` | [`README.lecturer.md`](README.lecturer.md) | 23,362 |
+<!-- sizes:end -->
 
 `card/demo/handoff.effigy` is in the directory and not in the table. It is a
 hypothesis rather than a voice — the shipped card's handoff rules with the prose
@@ -91,8 +95,8 @@ what survived, which is the same trade the rest of this repo makes.
 
 ## The gate is blind to the markup and not to the words
 
-`claude_maximal` scores 14, worst of the six and more than twice the shipped
-card's 6. That is a recent change and the way it changed is the useful part.
+`claude_maximal` scores 15, worst of the six and nearly four times the shipped
+card's 4. That is a recent change and the way it changed is the useful part.
 
 For most of this card's life it scored **clean**, then 2, while instructing every
 habit it was built from. Everything it did was markup — a bolded label, an emoji,
@@ -104,19 +108,20 @@ Then it was told to apologise in every paragraph, to set up each claim by first
 denying its opposite, and to reach for `load-bearing` and `worth noting` by name.
 None of that is markup. It is the prose, and the gate found all of it:
 
+<!-- maximal-hits:start -->
 | rule | hits on `claude_maximal` |
 |---|---|
-| `clause_symmetry` | 6 |
+| `clause_symmetry` | 7 |
 | `flip` | 4 |
-| `worth_noting` | 2 |
-| `load_bearing` | 1 |
+| `load_bearing` | 3 |
 | `apology` | 1 |
+<!-- maximal-hits:end -->
 
 So the exclusions below are real and they are narrower than they look. A card can
 be unmistakably this model on the page and score clean, as long as what makes it
 unmistakable is formatting. The moment the same card reaches for the model's
-sentences rather than its markup, the gate has it — and 46 bolded labels, 13
-emoji headings and 5 gratuitous tables still pass through untouched:
+sentences rather than its markup, the gate has it — and 46 bolded labels, 14
+emoji headings and 4 gratuitous tables still pass through untouched:
 
 - **Bold labels.** `labelled_opening` skips the bolded form. The card carried a
   `bold_label` rule and dropped it, after a reader working through 52 blind
@@ -135,16 +140,16 @@ emoji headings and 5 gratuitous tables still pass through untouched:
 
 Each of those was a defensible call made for a stated reason on a stated date.
 Together they describe a gate that cannot see this model's markup, however thick
-it is laid on. The front page is 28,000 characters of exactly that, and it costs
-the card nothing: every one of its 14 hits comes from a sentence rather than
+it is laid on. The front page is 31,000 characters of exactly that, and it costs
+the card nothing: every one of its 15 hits comes from a sentence rather than
 from anything you can see at a glance.
 
-## Six rules of sixteen
+## Five rules of sixteen
 
-Count the rules that fired across all six renders and the answer is six, two of
-which carry it: `clause_symmetry` 18, `labelled_opening` 14, then `flip` 4,
-`worth_noting` 2, `load_bearing` 1 and `apology` 1. Nothing else in the gate
-found anything, in 134,000 characters written six different ways.
+Count the rules that fired across all six renders and the answer is five, two of
+which carry it: `clause_symmetry` 18, `labelled_opening` 12, then `flip` 5,
+`load_bearing` 3 and `apology` 1. Nothing else in the gate found anything, in
+132,000 characters written six different ways.
 
 That says more about the artifact than about any card. Four of the structure
 rules — `ask_not_last`, `dangling_end`, `buried_decision`, `forked_end` — read
@@ -155,13 +160,15 @@ answer, and the section list forbids manufacturing one. `unverified_done` and
 README is almost exactly what did.
 
 Sixteen counts thirteen compiled into the binary plus the shipped card's three
-POSTPROC patterns. All three of those fire here, and all three fire on the same
-file — the joke card, after it was told to reach for the phrases by name. Before
-that instruction, none of them had ever fired on this page.
+POSTPROC patterns. Two of those three fire here — `flip` and `load_bearing` —
+and both fire hardest on the joke card, after it was told to reach for the
+phrases by name. Before that instruction neither had ever fired on this page.
+`worth_noting` fires on none of the six, which is the one phrase rule with
+nothing to show for itself so far.
 
 `apology` is the one to notice, because it wants a reply with something to be
-sorry for and a README has nothing. It fires anyway, once, against ten sentences
-conceding an error. One in ten is a poor catch rate on a habit the card was
+sorry for and a README has nothing. It fires anyway, once, against twenty-two sentences
+conceding an error. One in twenty-two is a poor catch rate on a habit the card was
 explicitly instructed to perform, which is worth knowing before trusting the
 absence of a hit anywhere else.
 
@@ -169,9 +176,9 @@ So read the score as separating cards on voicing and nearly silent on the other
 axis. Then read the two rules that carry it, because they separate the cards for
 opposite reasons.
 
-## Where the eight and the six come from
+## Where the eight and the five come from
 
-`caveman` collects the most, and six of its eight are `labelled_opening` — "Card
+`caveman` collects the most, and four of its eight are `labelled_opening` — "Card
 holds voicing", "Binary holds structure", "Now uncomfortable half", "Clone
 builds with". Drop the copula and the opening comes out verbless. The detector
 is not wrong to find them, and finding them tells you nothing you did not know
@@ -180,14 +187,14 @@ discrimination rival: identifiable from morphology in three words, so anything
 measuring it measures article count. The hits are real and they are not about
 structure.
 
-`lecturer` collects six, and its five `clause_symmetry` hits are the ones to read.
+`lecturer` collects five, and its three `clause_symmetry` hits are the ones to read.
 "The judgement lives in the discrimination test, and the discrimination test
 covers voicing only." Two clauses of matching length with a content word
 carried across the comma — the climb the card's VOICE block asks for, in as
 many words. `clause_symmetry` is compiled into the binary to catch it, and for
 a month the card had no way to say it wanted it — a card marked down for doing
 what it was told, which is what `@gate` was built for. `lecturer` now declines
-that rule and `dangling_end` in its header, with the reason on the line. Six is
+that rule and `dangling_end` in its header, with the reason on the line. Five is
 what a fixed ruler says; scored against its own card it is 1.
 
 The other direction is `@shape`, where a card states a structural rule and the

@@ -211,4 +211,6 @@ demo: build
 	fail=0; for p in $$pids; do wait $$p || fail=1; done; \
 	test $$fail -eq 0 || { echo "at least one render failed" >&2; exit 1; }
 	@echo
+	$(PYTHON) tools/demo_index.py
+	@echo
 	@for f in README.md demo/README.*.md; do ./bin/cope-gate --check $$f --log "" | head -1; done
