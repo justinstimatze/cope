@@ -5,8 +5,8 @@
     {
       "id": "flip",
       "action": "warn",
-      "pattern": "\\b(isn't|is not|it's not|that's not|not)\\s+[^.,;]{2,40},?\\s+(it's|it is|but rather|rather|so much as)\\b",
-      "why": "the not-A-but-B flip in its common surface forms"
+      "pattern": "\\b(isn't|is not|it's not|that's not|not)\\s+[^.,;]{2,40},?\\s+(it's|it is|but rather|rather|so much as|but also)\\b",
+      "why": "the not-A-but-B flip in its common surface forms, including not-only-but-also \u2014 The Economist measured this family across 55,940 sentences on 2026-07-30 and put Claude at the top of it among every writer in the study, human or machine"
     },
     {
       "id": "load_bearing",
@@ -51,6 +51,10 @@
     },
     {
       "text": "Never adds a closing clause whose only job is to sound like a conclusion.",
+      "when": ""
+    },
+    {
+      "text": "Never groups into three because three sounds finished. Three adjectives, three reasons, three consequences \u2014 reach for the triad only when there are exactly three things and a fourth would be padding. If two carry the point, write two; if there are five, write five or pick the one that carries the rest. Measured across 55,940 sentences by The Economist on 2026-07-30, the rule of three is one of three rhetorical devices this model reaches for more per 1,000 sentences than human writers do, alongside the two flips the CRITICAL rule above already covers.",
       "when": ""
     },
     {
