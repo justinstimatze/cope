@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.4.3 (2026-08-03) — the front page shipped cut off mid-sentence
+
+- **`max_tokens` was 16384 and the front page hit it.** The maximal card is
+  instructed to say everything three times, so it is the one render that runs
+  long, and README.md was published ending on "both should be read with".
+  Nothing caught it: a truncated draft scores clean, so the gate had no opinion,
+  and the loop never looked at `stop_reason`. Raised to 32768 — which the SDK
+  will not serve without streaming, correct for a request that size anyway — and
+  the regenerated render came back at 17,103 output tokens, so the old ceiling
+  was in the way rather than marginal. `stop_reason == "max_tokens"` now exits
+  without writing.
+- **`make demo` renders concurrently.** The six shared nothing but the binary
+  and the API key and ran one after another, about ten minutes. Three at once
+  measured 203s, so wall clock is now the slowest single render. The cost was
+  never money — roughly $2 for the set.
+- **`tools/demo_index.py` generates the demo index's tables.** Every other page
+  under `demo/` is generated; the index was not, and its three tables counted
+  things the build produces, so they went stale on every regen. They were
+  corrected six times in one day, and the last correction was still wrong. Only
+  the blocks between marker comments are rewritten; the prose around them stays
+  hand-written, and the tool prints measured totals to check it against.
+- **`card/demo/laconic.effigy` is no longer rendered.** Its job was
+  discrimination rival, `lecturer` took that job, and the page argued nothing
+  after that — a render from it demonstrated brevity, which the card's first
+  line already says. The card is untouched and still installed by `make cards`.
+
 ## v0.4.2 (2026-08-03) — an outside corpus study, one rule shipped and one held
 
 - **`flip` now catches "not only X but also Y".** The Economist compared 55,940
