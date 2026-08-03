@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.4.2 (2026-08-03) — an outside corpus study, one rule shipped and one held
+
+- **`flip` now catches "not only X but also Y".** The Economist compared 55,940
+  sentences of its own journalism against ChatGPT, Claude, Gemini and Grok on
+  2026-07-30, with CNN, the New York Times, the Washington Post and 1950–2022
+  fiction as further baselines, and names that construction beside "not X but Y"
+  as the same family. The pattern already had the shape for it — one alternation.
+  It fires on the mid-sentence and sentence-initial forms and leaves "I do not
+  think we should ship it also" alone.
+- **The rule of three is a NEVER rule.** It is the third device in that family
+  and the card had nothing on it. Stated as a threshold rather than a ban: reach
+  for three when there are three things, not because three sounds finished.
+- **A sentence-length uniformity detector was measured and not shipped.** The
+  card's kernel already asks for sentences that vary in length and nothing checks
+  it, so the rule looked obvious. Across 2,953 replies of six sentences or more
+  in the ten most recent transcripts, sentence-length CV runs p10 0.43, median
+  0.59, p90 0.85 — a threshold at 0.40 would fire on 6.6%. A workable firing rate
+  is not evidence that firing means worse prose, and the section below on seven
+  dead detectors is what that reasoning produced last time. It needs a blind
+  pair, not a rate.
+
 ## v0.4.1 (2026-08-03) — the first screen said one step twice
 
 - **`--setup` printed the remaining step in two wordings, one from the style
