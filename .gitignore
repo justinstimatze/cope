@@ -1,0 +1,34 @@
+__pycache__/
+*.pyc
+bin/
+
+# tools/generate_readme.py reads ANTHROPIC_API_KEY from here when it is set
+# nowhere else. Never commit it.
+.env
+
+# violations.jsonl now defaults to $XDG_STATE_HOME/cope. Kept here for
+# checkouts that predate the move, and because --log can point anywhere.
+violations.jsonl
+
+# CI clones effigy here to check card/rules.json against the .effigy source.
+.effigy/
+
+# Measurement scratch that hardcodes one machine's transcript layout.
+tools/eot-measure/
+replay/cope-replay
+replay/replay-turns.jsonl
+
+# A pairs run carries real prompts and real conversation out of every project
+# on the machine. It belongs in a scratch directory, never in the repo.
+replay/pairs/
+pairs.html
+pairs.json
+
+# The default -outdir for `make pairs`. Same reason as replay/pairs/: a run
+# carries real prompts and real conversation out of every project on the machine.
+/pairs/
+
+# The same, for `make discriminate`. Its page carries the identical material:
+# real prompts, real conversation, two generated replies to each.
+/discriminate/
+discriminate.html

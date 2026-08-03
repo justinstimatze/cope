@@ -1,0 +1,49 @@
+name: ci
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: gofmt
+        run: test -z "$(gofmt -l .)"
+      - name: vet
+        run: go vet ./...
+      # Pinned rather than @latest: an unpinned tool fetches new code on every
+      # run, which dependabot cannot see and a release cannot reproduce.
+      - name: staticcheck
+        run: go run honnef.co/go/tools/cmd/staticcheck@2026.1 ./...
+      - name: test
+        run: go test -race ./...
+
+  # card/rules.json is generated from the .effigy and committed so the binary
+  # can embed it. Nothing but this job stops the two from drifting apart.
+  card:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: justinstimatze/effigy
+          # v0.7.1 is the first release whose parser keeps unrecognised
+          # @keys, which is how @gate and @shape reach card/rules.json. Pinned
+          # to v0.7.0 this job regenerated the JSON without them and correctly
+          # called the committed file stale.
+          ref: v0.7.1
+          path: .effigy
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+      - name: card/rules.json matches card/claude_voice.effigy
+        run: make check-rules EFFIGY_PATH="$PWD/.effigy"
