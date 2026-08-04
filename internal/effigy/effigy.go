@@ -287,51 +287,17 @@ func parseTests(body string) []test {
 	return out
 }
 
-// parseMes cannot use notation.SplitItems: a MES entry is a whole exchange and
-// its line breaks are the thing that makes it one, so the lines are kept apart
-// here and joined only at the end.
+// parseMes keeps only the text. @tier, @when and @beat gate an example for
+// readers that render a character; the gate shows every example it is given, so
+// notation.MES reads the annotations and this drops them.
+//
+// The joining rule this used to carry itself is now upstream, which also fixes
+// a divergence: an @key the notation does not define is content, and the copy
+// here silently swallowed it.
 func parseMes(body string) []string {
-	var items [][]string
-	var cur []string
-	flush := func() {
-		if len(cur) > 0 {
-			items = append(items, cur)
-			cur = nil
-		}
-	}
-	for _, line := range strings.Split(body, "\n") {
-		s := strings.TrimSpace(line)
-		switch {
-		case s == "---":
-			flush()
-		case s == "" || strings.HasPrefix(s, "#"):
-		case strings.HasPrefix(s, "@"):
-			// @tier, @when and @beat annotate the example; none reach the card.
-		default:
-			cur = append(cur, s)
-		}
-	}
-	flush()
-
 	out := []string{}
-	for _, lines := range items {
-		hasUser := false
-		for _, l := range lines {
-			if strings.HasPrefix(l, "{{user}}:") {
-				hasUser = true
-				break
-			}
-		}
-		if hasUser {
-			out = append(out, strings.Join(lines, "\n"))
-			continue
-		}
-		// A bare example is the character speaking unprompted.
-		text := strings.Join(lines, " ")
-		if !strings.HasPrefix(text, "{{char}}:") {
-			text = "{{char}}: " + text
-		}
-		out = append(out, text)
+	for _, ex := range notation.MES(body) {
+		out = append(out, ex.Text)
 	}
 	return out
 }
