@@ -1,5 +1,5 @@
-// Package effigy parses the subset of effigy notation that cope reads and
-// emits the card JSON the gate already consumes.
+// Package effigy turns an effigy card into the card JSON the gate already
+// consumes.
 //
 // tools/card2json.py remains the build-time path for the embedded card, and
 // CI still regenerates card/rules.json through it, so effigy stays the single
@@ -10,20 +10,26 @@
 // build step has one voice.
 //
 // It is deliberately a translator rather than a second reader of the format.
-// Output goes through scan.ParseCard exactly as the generated JSON does, so
-// pattern compilation, the strip-is-unimplementable warning, and every other
-// check happen in one place. Where the two paths could disagree, a test reads
-// every card in the repo through both and compares.
+// Reading the notation — which keywords open a block, which delimiters close
+// one, how a body is cut into items — belongs to effigy and comes from
+// effigy/go/notation. What is left here is cope's half: which blocks it wants
+// and what shape they take in the gate's JSON. Output then goes through
+// scan.ParseCard exactly as the generated JSON does, so pattern compilation,
+// the strip-is-unimplementable warning, and every other check happen in one
+// place. Where the two paths could disagree, a test reads every card in the
+// repo through both and compares.
 //
 // Blocks effigy defines and cope has no use for (ARC, GOALS, RELS, SECRETS and
-// the rest) are skipped the way the reference parser skips an unknown keyword,
-// so a card carrying them still loads.
+// the rest) fall through the switch below, as does any block effigy does not
+// define at all.
 package effigy
 
 import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/justinstimatze/effigy/go/notation"
 )
 
 type card struct {
@@ -39,10 +45,10 @@ type card struct {
 	Wrong  []pair   `json:"wrong"`
 	Mes    []string `json:"mes"`
 
-	// Gate carries @gate lines through verbatim. effigy's own parser drops
-	// unrecognised @keys, so this is the one place cope reads a header the
-	// notation does not define; the meaning of the string is scan's business,
-	// not this package's.
+	// Gate carries @gate lines through verbatim. The notation does not define
+	// the key, and effigy keeps unrecognised @keys rather than dropping them,
+	// so it arrives here like any other header; the meaning of the string is
+	// scan's business, not this package's.
 	Gate []string `json:"gate,omitempty"`
 
 	// Shape carries @shape lines the same way, for the card's own structure
@@ -93,157 +99,61 @@ func ToJSON(src []byte, source string) ([]byte, error) {
 	return json.Marshal(c)
 }
 
-// braced lists the blocks effigy delimits with {} rather than []. Everything
-// else it knows is bracketed, and anything in neither list is unknown.
-var braced = map[string]bool{
-	"VOICE": true, "ARC": true, "GOALS": true, "RELS": true,
-	"SCHED": true, "DM": true, "BEHAVIORS": true,
-}
-
 func parse(src []byte, source string) (*card, error) {
 	c := &card{
 		Source: source,
 		Rules:  []rule{}, Traits: []string{}, Never: []gated{},
 		Quirks: []string{}, Tests: []test{}, Wrong: []pair{}, Mes: []string{},
 	}
-	p := &parser{src: src}
-	for {
-		p.skipSpaceAndNewlines()
-		if p.done() {
-			return c, nil
+
+	doc, err := notation.Scan(src)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, h := range doc.Headers {
+		switch h.Key {
+		case "id":
+			c.CardID = h.Value
+		case "theme":
+			c.Theme = h.Value
+		case "shape":
+			c.Shape = append(c.Shape, h.Value)
+		case "gate":
+			// Repeated, one rule per line, so it accumulates rather than
+			// overwriting. Validation happens in scan, which knows the rule ids.
+			c.Gate = append(c.Gate, h.Value)
 		}
-		switch {
-		case p.src[p.pos] == '#':
-			p.skipLine()
-		case p.src[p.pos] == '@':
-			p.header(c)
-		default:
-			word := p.peekWord()
-			if word == "" {
-				p.skipLine()
-				continue
-			}
-			if !braced[word] && !bracketed[word] {
-				// Unknown keyword. The reference parser skips the line and
-				// carries on rather than failing, which leaves the block's
-				// body to be walked as loose lines and discarded the same way.
-				p.skipLine()
-				continue
-			}
-			p.pos += len(word)
-			open, close := byte('['), byte(']')
-			if braced[word] {
-				open, close = '{', '}'
-			}
-			body, err := p.readBlock(open, close)
-			if err != nil {
-				return nil, fmt.Errorf("%s: %w", word, err)
-			}
-			switch word {
-			case "VOICE":
-				kv := kvBlock(body)
-				c.Voice = voice{Kernel: kv["kernel"], Peak: kv["peak"]}
-			case "TRAITS":
-				c.Traits = parseTraits(body)
-			case "NEVER":
-				c.Never = parseNever(body)
-			case "QUIRKS":
-				c.Quirks = parseLines(body)
-			case "TEST":
-				c.Tests = parseTests(body)
-			case "WRONG":
-				c.Wrong = parseWrong(body)
-			case "MES":
-				c.Mes = parseMes(body)
-			case "POSTPROC":
-				c.Rules = parsePostproc(body)
-			}
+		// @name and @role are read by effigy and carried nowhere: the gate
+		// renders a register, not a character sheet. Other keys belong to
+		// blocks cope does not use.
+	}
+
+	for _, b := range doc.Blocks {
+		switch b.Name {
+		case "VOICE":
+			kv := notation.KV(b.Body)
+			c.Voice = voice{Kernel: kv["kernel"], Peak: kv["peak"]}
+		case "TRAITS":
+			c.Traits = parseTraits(b.Body)
+		case "NEVER":
+			c.Never = parseNever(b.Body)
+		case "QUIRKS":
+			c.Quirks = parseLines(b.Body)
+		case "TEST":
+			c.Tests = parseTests(b.Body)
+		case "WRONG":
+			c.Wrong = parseWrong(b.Body)
+		case "MES":
+			c.Mes = parseMes(b.Body)
+		case "POSTPROC":
+			c.Rules = parsePostproc(b.Body)
 		}
 	}
-}
-
-// bracketed lists every []-delimited block effigy knows. Blocks cope ignores
-// are here so their bodies are consumed as a unit; leaving them out would send
-// their contents through the top-level loop a line at a time.
-var bracketed = map[string]bool{
-	"TRAITS": true, "NEVER": true, "QUIRKS": true, "MES": true, "UNC": true,
-	"SECRETS": true, "ERA": true, "ARRIVE": true, "DEPART": true,
-	"WRONG": true, "TEST": true, "PROPS": true, "POSTPROC": true,
-}
-
-func (p *parser) header(c *card) {
-	p.pos++ // @
-	start := p.pos
-	for !p.done() && p.src[p.pos] != ' ' && p.src[p.pos] != '\t' && p.src[p.pos] != '\n' {
-		p.pos++
-	}
-	key := string(p.src[start:p.pos])
-	p.skipSpace()
-	value := strings.TrimSpace(p.readLine())
-	switch key {
-	case "id":
-		c.CardID = value
-	case "theme":
-		c.Theme = value
-	case "shape":
-		c.Shape = append(c.Shape, value)
-	case "gate":
-		// Repeated, one rule per line, so it accumulates rather than
-		// overwriting. Validation happens in scan, which knows the rule ids.
-		c.Gate = append(c.Gate, value)
-	}
-	// @name and @role are read by effigy and carried nowhere: the gate renders
-	// a register, not a character sheet. Other keys belong to blocks cope does
-	// not use.
+	return c, nil
 }
 
 // --- block bodies -----------------------------------------------------------
-
-// splitItems cuts a block body on --- lines, dropping blank and commented
-// lines. Interior indentation survives; the per-block parsers trim.
-func splitItems(body string) []string {
-	var items []string
-	var cur []string
-	for _, line := range strings.Split(body, "\n") {
-		s := strings.TrimSpace(line)
-		switch {
-		case s == "---":
-			if len(cur) > 0 {
-				items = append(items, strings.Join(cur, "\n"))
-				cur = nil
-			}
-		case s != "" && !strings.HasPrefix(s, "#"):
-			cur = append(cur, line)
-		}
-	}
-	if len(cur) > 0 {
-		items = append(items, strings.Join(cur, "\n"))
-	}
-	return items
-}
-
-// kvBlock reads `key: value` lines. A line with no colon continues the value
-// above it, which is how a kernel can be wrapped across lines in a card.
-func kvBlock(body string) map[string]string {
-	out := map[string]string{}
-	last := ""
-	for _, line := range strings.Split(body, "\n") {
-		s := strings.TrimSpace(line)
-		if s == "" || strings.HasPrefix(s, "#") {
-			continue
-		}
-		if i := strings.Index(s, ":"); i >= 0 {
-			k := strings.TrimSpace(s[:i])
-			out[k] = strings.TrimSpace(s[i+1:])
-			last = k
-			continue
-		}
-		if last != "" {
-			out[last] += " " + s
-		}
-	}
-	return out
-}
 
 func parseTraits(body string) []string {
 	var kept []string
@@ -265,7 +175,7 @@ func parseTraits(body string) []string {
 
 func parseNever(body string) []gated {
 	out := []gated{}
-	for _, item := range splitItems(body) {
+	for _, item := range notation.SplitItems(body) {
 		when := ""
 		var text []string
 		for _, raw := range strings.Split(strings.TrimSpace(item), "\n") {
@@ -273,7 +183,7 @@ func parseNever(body string) []gated {
 			if line == "" || strings.HasPrefix(line, "#") {
 				continue
 			}
-			if rest, ok := directive(line, "@when"); ok {
+			if rest, ok := notation.Directive(line, "@when"); ok {
 				when = rest
 				continue
 			}
@@ -288,7 +198,7 @@ func parseNever(body string) []gated {
 
 func parseLines(body string) []string {
 	out := []string{}
-	for _, item := range splitItems(body) {
+	for _, item := range notation.SplitItems(body) {
 		var lines []string
 		for _, raw := range strings.Split(strings.TrimSpace(item), "\n") {
 			if s := strings.TrimSpace(raw); s != "" {
@@ -304,7 +214,7 @@ func parseLines(body string) []string {
 
 func parseWrong(body string) []pair {
 	out := []pair{}
-	for _, item := range splitItems(body) {
+	for _, item := range notation.SplitItems(body) {
 		var p pair
 		var when string
 		for _, raw := range strings.Split(strings.TrimSpace(item), "\n") {
@@ -312,7 +222,7 @@ func parseWrong(body string) []pair {
 			if line == "" {
 				continue
 			}
-			if rest, ok := directive(line, "@when"); ok {
+			if rest, ok := notation.Directive(line, "@when"); ok {
 				when = rest
 				continue
 			}
@@ -337,7 +247,7 @@ func parseWrong(body string) []pair {
 
 func parseTests(body string) []test {
 	out := []test{}
-	for _, item := range splitItems(body) {
+	for _, item := range notation.SplitItems(body) {
 		t := test{Fail: []string{}, Pass: []string{}}
 		var when string
 		for _, raw := range strings.Split(strings.TrimSpace(item), "\n") {
@@ -345,11 +255,11 @@ func parseTests(body string) []test {
 			if line == "" || strings.HasPrefix(line, "#") {
 				continue
 			}
-			if rest, ok := directive(line, "@when"); ok {
+			if rest, ok := notation.Directive(line, "@when"); ok {
 				when = rest
 				continue
 			}
-			if _, ok := directive(line, "@beat"); ok {
+			if _, ok := notation.Directive(line, "@beat"); ok {
 				continue
 			}
 			low := strings.ToLower(line)
@@ -377,9 +287,9 @@ func parseTests(body string) []test {
 	return out
 }
 
-// parseMes cannot use splitItems: a MES entry is a whole exchange and its line
-// breaks are the thing that makes it one, so the lines are kept apart here and
-// joined only at the end.
+// parseMes cannot use notation.SplitItems: a MES entry is a whole exchange and
+// its line breaks are the thing that makes it one, so the lines are kept apart
+// here and joined only at the end.
 func parseMes(body string) []string {
 	var items [][]string
 	var cur []string
@@ -428,8 +338,8 @@ func parseMes(body string) []string {
 
 func parsePostproc(body string) []rule {
 	out := []rule{}
-	for i, item := range splitItems(body) {
-		kv := kvBlock(item)
+	for i, item := range notation.SplitItems(body) {
+		kv := notation.KV(item)
 		action := strings.ToLower(strings.TrimSpace(kv["action"]))
 		pattern := strings.TrimSpace(kv["pattern"])
 		if pattern == "" || (action != "reject" && action != "strip" && action != "warn") {
@@ -445,14 +355,6 @@ func parsePostproc(body string) []rule {
 	return out
 }
 
-// directive matches an @-prefixed annotation and returns what follows it.
-func directive(line, name string) (string, bool) {
-	if !strings.HasPrefix(line, name) {
-		return "", false
-	}
-	return strings.TrimSpace(line[len(name):]), true
-}
-
 // normalizeWhen folds effigy's always-on marker to the empty condition, which
 // is what the gate's own gating reads as ungated.
 func normalizeWhen(w string) string {
@@ -460,93 +362,4 @@ func normalizeWhen(w string) string {
 		return ""
 	}
 	return w
-}
-
-// --- scanning ---------------------------------------------------------------
-
-type parser struct {
-	src []byte
-	pos int
-}
-
-func (p *parser) done() bool { return p.pos >= len(p.src) }
-
-func (p *parser) skipSpace() {
-	for !p.done() && (p.src[p.pos] == ' ' || p.src[p.pos] == '\t') {
-		p.pos++
-	}
-}
-
-func (p *parser) skipSpaceAndNewlines() {
-	for !p.done() {
-		switch p.src[p.pos] {
-		case ' ', '\t', '\n', '\r':
-			p.pos++
-		default:
-			return
-		}
-	}
-}
-
-func (p *parser) skipLine() {
-	for !p.done() && p.src[p.pos] != '\n' {
-		p.pos++
-	}
-	if !p.done() {
-		p.pos++
-	}
-}
-
-func (p *parser) readLine() string {
-	start := p.pos
-	for !p.done() && p.src[p.pos] != '\n' {
-		p.pos++
-	}
-	line := string(p.src[start:p.pos])
-	if !p.done() {
-		p.pos++
-	}
-	return line
-}
-
-func (p *parser) peekWord() string {
-	i := p.pos
-	for i < len(p.src) && (p.src[i] == ' ' || p.src[i] == '\t') {
-		i++
-	}
-	j := i
-	for j < len(p.src) && isAlpha(p.src[j]) {
-		j++
-	}
-	return string(p.src[i:j])
-}
-
-// readBlock consumes a delimited body, counting nested delimiters so a regex
-// carrying a character class survives inside a bracketed block.
-func (p *parser) readBlock(open, close byte) (string, error) {
-	p.skipSpaceAndNewlines()
-	if p.done() || p.src[p.pos] != open {
-		return "", fmt.Errorf("expected %q", string(open))
-	}
-	p.pos++
-	depth, start := 1, p.pos
-	for !p.done() {
-		switch p.src[p.pos] {
-		case open:
-			depth++
-		case close:
-			depth--
-			if depth == 0 {
-				body := string(p.src[start:p.pos])
-				p.pos++
-				return body, nil
-			}
-		}
-		p.pos++
-	}
-	return "", fmt.Errorf("unterminated block, no closing %q", string(close))
-}
-
-func isAlpha(b byte) bool {
-	return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
 }
