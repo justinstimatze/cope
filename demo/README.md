@@ -32,7 +32,7 @@ the shipped register cannot show that.
 It was the maximal card until 2026-08-04, on the argument that a page written in
 the register cope exists to fix states the problem better than a paragraph about
 it can. It does, and it costs too much: the people who arrive here arrived to
-get away from that prose, and the front page served them 31,000 characters of it
+get away from that prose, and the front page served them a full page of it
 before they had any reason to trust the joke. The maximal render is still here
 and the front page still names it, so it is met by clicking rather than by
 landing.
@@ -121,14 +121,26 @@ what survived, which is the same trade the rest of this repo makes.
 
 ## The gate is blind to the markup and not to the words
 
-`claude_maximal` scores 7, more than twice the shipped card's 3. That is
-a recent change and the way it changed is the useful part.
+`claude_maximal` scores several times the shipped card. That is a recent
+change and the way it changed is the useful part.
 
-It is no longer the highest number on the page. `fieldguide` scores 14, and 10
-of those are `labelled_opening` — a rule it declines in its own header, because
-every entry opens on the name of the thing. The check below runs without
-`--rules`, so all six pages are scored against the shipped card's rules and a
-declined rule still counts. Under its own card the same page scores 3. Two
+<!-- scores:start -->
+| Page | scored by the shipped card | scored by its own card |
+|---|---|---|
+| [`README.claude-voice.md`](README.claude-voice.md) | 3 | the same card |
+| [`README.claude-maximal.md`](README.claude-maximal.md) | 7 | 4 |
+| [`README.precise.md`](README.precise.md) | 5 | 5 |
+| [`README.caveman.md`](README.caveman.md) | 7 | 6 |
+| [`README.lecturer.md`](README.lecturer.md) | 6 | 1 |
+| [`README.fieldguide.md`](README.fieldguide.md) | 14 | 3 |
+<!-- scores:end -->
+
+Read that table in two columns rather than one. The left one runs the shipped
+card's rules over every page, which is what a fixed ruler says. The right one
+runs each page against the card it was written from, which is what the card's
+own word was worth. `fieldguide` is where they part hardest: it declines
+`labelled_opening` in its header, because every entry opens on the name of the
+thing, and a declined rule still runs and still counts on the left. Two
 numbers, one page, and the gap between them is the whole reason this section
 exists.
 
@@ -153,8 +165,9 @@ None of that is markup. It is the prose, and the gate found all of it:
 So the exclusions below are real and they are narrower than they look. A card can
 be unmistakably this model on the page and score clean, as long as what makes it
 unmistakable is formatting. The moment the same card reaches for the model's
-sentences rather than its markup, the gate has it — and 53 bolded labels, 14
-emoji headings and 5 gratuitous tables still pass through untouched:
+sentences rather than its markup, the gate has it — and every bolded label,
+emoji heading and gratuitous table in the first table on this page still passes
+through untouched:
 
 - **Bold labels.** `labelled_opening` skips the bolded form. The card carried a
   `bold_label` rule and dropped it, after a reader working through 52 blind
@@ -173,16 +186,18 @@ emoji headings and 5 gratuitous tables still pass through untouched:
 
 Each of those was a defensible call made for a stated reason on a stated date.
 Together they describe a gate that cannot see this model's markup, however thick
-it is laid on. [`README.claude-maximal.md`](README.claude-maximal.md) is 31,154
-characters of exactly that, and it costs the card nothing: every one of its 7
+it is laid on. [`README.claude-maximal.md`](README.claude-maximal.md) is the longest page
+here and it is exactly that, and it costs the card nothing: every one of its
 hits comes from a sentence rather than from anything you can see at a glance.
 
-## Five rules of sixteen
+## Most of the gate never fires on a document
 
-Count the rules that fired across all six renders and the answer is five, two of
-which carry it: `clause_symmetry` 18, `labelled_opening` 16, then `flip` 5,
-`load_bearing` 2 and `apology` 1. Nothing else in the gate found anything, in
-139,448 characters written six different ways.
+<!-- totals:start -->
+Across 6 renders and 139,448 characters, 5 of the sixteen rules fired at all: `clause_symmetry` 18, `labelled_opening` 16, `flip` 5, `load_bearing` 2, `apology` 1.
+<!-- totals:end -->
+
+Two of them carry it and the rest are a long tail. Nothing else in the gate
+found anything at all.
 
 That says more about the artifact than about any card. Four of the structure
 rules — `ask_not_last`, `dangling_end`, `buried_decision`, `forked_end` — read
@@ -192,51 +207,45 @@ answer, and the section list forbids manufacturing one. `unverified_done` and
 `cross_turn_repeat` needs a session history. What is left able to fire on a
 README is almost exactly what did.
 
-Sixteen counts thirteen compiled into the binary plus the shipped card's three
-POSTPROC patterns. Two of the three fire here — `flip` and `load_bearing` — and
-`flip` fires hardest on the joke card, after it was told to set up each claim by
-first denying its opposite. `worth_noting` fires on none of the six renders,
-which is worth holding against its measured rate of 6.5 per 1k in real
-transcripts: a README is not the artifact that rule was chosen on, and which of
-the three fires on a given rebuild moves from render to render.
+Sixteen counts thirteen compiled into the binary plus the shipped card's
+POSTPROC patterns. Which of those fire, and how often, moves from render to
+render — the line above is this build's answer and the next build's will differ.
+`flip` is the one that reliably shows, on the joke card, after it was told to
+set up each claim by first denying its opposite. That the phrase rules barely
+register here is worth holding against their measured rates in real transcripts:
+a README is not the artifact they were chosen on.
 
 `apology` is the one to notice, because it wants a reply with something to be
-sorry for and a README has nothing. It fires anyway, once, against twenty-six sentences
-conceding an error. One in twenty-six is a poor catch rate on a habit the card was
-explicitly instructed to perform, which is worth knowing before trusting the
-absence of a hit anywhere else.
+sorry for and a README has nothing. It fires anyway, once, against the apologising-sentence count
+in the first table on this page. One in that many is a poor catch rate on a
+habit the card was explicitly instructed to perform, which is worth knowing
+before trusting the absence of a hit anywhere else.
 
 So read the score as separating cards on voicing and nearly silent on the other
 axis. Then read the two rules that carry it, because they separate the cards for
 opposite reasons.
 
-## Where the seven and the six come from
+## Where each card's hits come from
 
-`caveman` collects 7, three of them `labelled_opening` — "effigy owns grammar",
-"NEVER budget holds at 10", "Watch hits per character". Drop the copula and the opening comes out verbless. The
-detector is not wrong to find them, and finding them tells you nothing you did
-not know from the card's first line. It is the same flaw that made caveman
-useless as a discrimination rival: identifiable from morphology in three words,
-so anything measuring it measures article count. The hits are real and they are
-not about structure.
+`caveman` collects most of its hits on `labelled_opening`. Drop the copula and
+the opening comes out verbless, every time. The detector is not wrong to find
+them, and finding them tells you nothing you did not know from the card's first
+line. It is the same flaw that made caveman useless as a discrimination rival:
+identifiable from morphology in three words, so anything measuring it measures
+article count. The hits are real and they are not about structure.
 
-`fieldguide` collects 14 for the same reason turned up higher, and unlike
-caveman it says so in its header. Ten `labelled_opening` hits, because the card
-requires every paragraph to open on the name of the thing it describes. It
-declines the rule with `@gate` and gives the reason on the line, so its own
-score is 3. The two numbers measure different questions: 14 asks what the
-shipped ruler says, 3 asks whether the card kept its own word.
+`fieldguide` collects the same rule, turned up higher, and unlike caveman it
+says so in its header. The card requires every paragraph to open on the name of
+the thing it describes. It declines the rule with `@gate` and gives the reason
+on the line, which is why its two columns in the score table are so far apart.
 
-`lecturer` collects 6, and its three `clause_symmetry` hits are the ones to read.
-"That flip appeared twice in the session that built this repo, while the ban was
-the topic of the session" — two clauses
-of matching length with a content word carried across the comma, the climb the
-card's VOICE block asks for, in as many words. `clause_symmetry` is compiled
-into the binary to catch it, and for a month the card had no way to say it
-wanted it — a card marked down for doing what it was told, which is what `@gate`
-was built for. `lecturer` now declines that rule and `dangling_end` in its
-header, with the reason on the line. Six is what a fixed ruler says; scored
-against its own card it is 1.
+`lecturer` collects mostly `clause_symmetry` — two clauses of matching length
+with a content word carried across the comma, the climb the card's VOICE block
+asks for, in as many words. `clause_symmetry` is compiled into the binary to
+catch it, and for a month the card had no way to say it wanted it, so it was
+marked down for doing what it was told. That is what `@gate` was built for.
+`lecturer` now declines that rule and `dangling_end` in its header, with the
+reason on the line, and its own column drops accordingly.
 
 The other direction is `@shape`, where a card states a structural rule and the
 gate checks it. `card/demo/handoff.effigy` uses it for the one claim its own
@@ -279,8 +288,8 @@ compresses agent replies to cut output tokens. The second two are the `precise`
 card's register applied to the same content.
 
 At document scale it reverses, and it has now reversed twice on rebuilt files.
-`README.caveman.md` is the shortest here and `README.precise.md` runs fourteen
-hundred characters longer. Grammar compression applies to every sentence;
+`README.caveman.md` is the shortest in the size table above and
+`README.precise.md` runs longer. Grammar compression applies to every sentence;
 vocabulary compression only pays where there is a term of art to reach for, and
 most of a README is not that.
 

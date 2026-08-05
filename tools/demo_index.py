@@ -69,6 +69,16 @@ def rules(page: str) -> list[str]:
     return re.findall(r"^  \[([a-z_]+)\]", out, re.M)
 
 
+def score(page: str, card: str | None = None) -> int:
+    """Violation count for one page, optionally under its own card's rules."""
+    args = [str(GATE), "--check", page, "--log", ""]
+    if card:
+        args[1:1] = ["--rules", card]
+    out = subprocess.run(args, capture_output=True, text=True, cwd=REPO).stdout
+    m = re.search(r"(\d+) violation", out)
+    return int(m.group(1)) if m else 0
+
+
 def block(name: str, body: str) -> str:
     return f"<!-- {name}:start -->\n{body}\n<!-- {name}:end -->"
 
@@ -124,17 +134,41 @@ def main() -> None:
         f"| `{r}` | {n} |" for r, n in sorted(tally.items(), key=lambda kv: -kv[1])
     ]
 
-    text = INDEX.read_text(encoding="utf-8")
-    text = splice(text, "side-by-side", "\n".join(side))
-    text = splice(text, "sizes", "\n".join(sizes))
-    text = splice(text, "maximal-hits", "\n".join(maximal))
-    INDEX.write_text(text, encoding="utf-8")
+    # Every figure this page states lives in a spliced block. Three separate
+    # sweeps in one day went stale between a render and the paragraph quoting
+    # it, and the last of those shipped. A number in prose here is a number
+    # nobody rebuilds.
+    scores = [
+        "| Page | scored by the shipped card | scored by its own card |",
+        "|---|---|---|",
+    ]
+    for card, page in CARDS:
+        name = Path(page).name
+        own = score(page, card)
+        fixed = score(page)
+        same = "the same card" if card.endswith("claude_voice.effigy") else f"{own}"
+        scores.append(f"| [`{name}`]({name}) | {fixed} | {same} |")
 
     total = sum(v["chars"] for v in c.values())
     allhits: dict[str, int] = {}
     for _, page in CARDS:
         for r in rules(page):
             allhits[r] = allhits.get(r, 0) + 1
+    fired = ", ".join(
+        f"`{r}` {n}" for r, n in sorted(allhits.items(), key=lambda kv: -kv[1])
+    )
+    totals = (
+        f"Across {len(CARDS)} renders and {total:,} characters, "
+        f"{len(allhits)} of the sixteen rules fired at all: {fired}."
+    )
+
+    text = INDEX.read_text(encoding="utf-8")
+    text = splice(text, "side-by-side", "\n".join(side))
+    text = splice(text, "sizes", "\n".join(sizes))
+    text = splice(text, "maximal-hits", "\n".join(maximal))
+    text = splice(text, "scores", "\n".join(scores))
+    text = splice(text, "totals", totals)
+    INDEX.write_text(text, encoding="utf-8")
     print(f"demo/README.md tables rewritten from {len(CARDS)} renders")
     print(f"  total {total:,} chars")
     print(
