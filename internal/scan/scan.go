@@ -19,6 +19,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 // Rule is one regex rule loaded from the card's POSTPROC block.
@@ -197,14 +198,29 @@ func Redact(s string) string {
 	return s
 }
 
+// contextAround returns the match with roughly 70 bytes either side.
+//
+// The offsets are snapped outward to rune boundaries. 70 bytes back from a
+// match lands mid-rune whenever an em dash or a curly quote sits there, and the
+// resulting string is invalid UTF-8 — which is not a cosmetic problem: it goes
+// into violations.jsonl and onto stdout, and on 2026-08-04 it killed a docs
+// render outright when the tool reading --check output tried to decode it.
+// Snapping outward rather than inward keeps the window at least as wide as
+// asked for.
 func contextAround(orig string, lo, hi int) string {
 	start := lo - 70
 	if start < 0 {
 		start = 0
 	}
+	for start > 0 && !utf8.RuneStart(orig[start]) {
+		start--
+	}
 	end := hi + 70
 	if end > len(orig) {
 		end = len(orig)
+	}
+	for end < len(orig) && !utf8.RuneStart(orig[end]) {
+		end++
 	}
 	return strings.ReplaceAll(strings.TrimSpace(orig[start:end]), "\n", " ")
 }

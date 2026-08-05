@@ -1,7 +1,9 @@
 package scan
 
 import (
+	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/justinstimatze/cope/card"
 )
@@ -643,6 +645,29 @@ func TestAnnouncedLengthFlagsTheWarningNotTheLength(t *testing.T) {
 	} {
 		if got := AnnouncedLength(s); len(got) > 0 {
 			t.Errorf("a plain statement of size flagged as an announcement in %q: %+v", s, got)
+		}
+	}
+}
+
+// TestContextAroundStaysValidUTF8 covers the bug that killed a docs render on
+// 2026-08-04: the context window was sliced by byte offset, so a multi-byte
+// rune sitting 70 bytes from the match came out cut in half and the whole
+// --check report decoded as invalid UTF-8. Em dashes are three bytes and this
+// repo's prose is full of them, which is why it took until then to show up in
+// a way anything noticed.
+func TestContextAroundStaysValidUTF8(t *testing.T) {
+	// Walk the match position across a run of em dashes so every offset from
+	// the boundary gets exercised, including the two that split a rune.
+	filler := strings.Repeat("—", 60) // 180 bytes
+	for i := 0; i < 12; i++ {
+		text := filler + strings.Repeat("x", i) + "MATCH" + filler
+		lo := len(filler) + i
+		got := contextAround(text, lo, lo+len("MATCH"))
+		if !utf8.ValidString(got) {
+			t.Fatalf("i=%d: context is not valid UTF-8: %q", i, got)
+		}
+		if !strings.Contains(got, "MATCH") {
+			t.Errorf("i=%d: context lost the match: %q", i, got)
 		}
 	}
 }
