@@ -1,5 +1,98 @@
 # Changelog
 
+## v0.5.0 (2026-08-04) — the front page stops describing a different card
+
+- **The front page is written from `fieldguide` instead of `claude_maximal`.**
+  The maximal render made the argument better than a paragraph about it could,
+  and it cost too much: the people who arrive here arrived to get away from that
+  prose, and the front page served them 31,000 characters of it before they had
+  any reason to trust the joke. It is still under `demo/` and the front page
+  still names it, so it is met by clicking rather than by landing. `fieldguide`
+  is a new demo card — entries open on the name of the thing, an alternative
+  gets its own sentence beginning "Compare", a claim with nothing behind it
+  reads "Not recorded". Its first draft failed and the failure is written into
+  the card header: that draft described the JOB, tell things apart, and rendered
+  indistinguishable from the shipped card, carrying none of its own moves. A job
+  is something a model can believe it is doing while writing normally. `caveman`
+  was the other candidate and was dropped, because a separate project of that
+  name by another author is cited on the page and wearing a neighbour's register
+  on the front door reads as taking it.
+
+- **The docs facts described whichever card was loaded and the prose called it
+  the shipped card, so every page under `demo/` documented rules cope does not
+  have.** The front page claimed one POSTPROC rule where three ship, and its
+  rules list named `unrecorded_hedge` and `unpersuaded` — `fieldguide`'s own,
+  which nobody installs — while omitting `flip`, `load_bearing` and
+  `worth_noting`, which everybody gets. Both the count and the list now come
+  from the embedded card, the loaded card's are kept separately, and the section
+  brief says which is which. The same fault recurred twice more before the day
+  was out, in the install block and in the style name, which is the argument for
+  naming the pattern rather than the instance.
+
+- **Nothing told a reader what to select.** Installing cope leaves you at
+  `/config` → Output style looking for something called cope; the entry is named
+  `claude_voice`, the shipped card's id. The install ended with a style picked
+  and nothing changed, which is the one failure on that page that costs a reader
+  the whole tool. The name is computed from the shipped card and sits in the
+  copyable install block as a comment the brief reproduces verbatim — prose
+  instructions to name it landed on three renders out of seven and missed the
+  front page. Renaming the card was the other option and is worse: anyone
+  carrying `"outputStyle": "claude_voice"` would get a silent fallback to no
+  style, and the stale file would leave `/config` listing two entries, one live
+  and one dead.
+
+- **`generate_readme.py` scored every draft against the shipped card no matter
+  which card wrote it.** So no page under `demo/` was ever revised against the
+  rules it was written to, and the front page was rendered at `--rounds 0` to
+  avoid the mismatch — the only page in the repo never held to a gate, in a repo
+  whose whole claim is that the same binary scores the result. `check()` takes
+  `--rules` now and the front page revises: three violations on the first draft,
+  clean on the second, and the five heading-shaped paragraph openings a reader
+  had complained about went away because the gate caught them rather than
+  because anyone rewrote them by hand.
+
+- **`contextAround` sliced the violation window by byte offset, so a rune on the
+  boundary came out cut in half.** Em dashes are three bytes and this repo's
+  prose is full of them. The result was invalid UTF-8 on stdout and in
+  `violations.jsonl`, silently, for as long as the function has existed — and it
+  killed a docs render outright when the tool reading `--check` output tried to
+  decode it. Snapped outward to a rune boundary, so the window is never narrower
+  than asked for.
+
+- **The section briefs open on a short label, and the writer was promoting those
+  labels onto the page.** Paragraphs began "What `--setup` did.", "Where an
+  instruction sits.", "The failure no instruction reaches." — headings with
+  their hashes taken off, which read as sentences that stopped early. The brief
+  now says the labels are scaffolding and that how a paragraph opens is the
+  card's decision. `fieldguide` carries the rule from its own side too, as a
+  `heading_headword` POSTPROC pattern, a NEVER and a HEADWORD TEST separating
+  the name of a thing from a question about it.
+
+- **Every figure in `demo/README.md` moved into a generated block.** The prose
+  hand-quoted counts that `tools/demo_index.py` rewrites on the next build:
+  scores, character totals, per-card hit tallies, the markup counts from the
+  table directly above them. Three sweeps in one day went stale between a render
+  and the paragraph quoting it, and the last of those shipped a page whose prose
+  disagreed with its own table four lines up. The index gained a score table
+  carrying both columns — each page under the shipped card's rules and under its
+  own — which is the distinction that section spends three paragraphs on and had
+  no way to show.
+
+- **The shipped card marks identifiers now, and the gap it closed was smaller
+  than the argument for it.** No card had an opinion about backticking a path or
+  a rule id, which looked like a hole in the product. Measured after the fact on
+  `demo/README.claude-voice.md`, the one page the shipped card writes: 47
+  identifier mentions with 2 bare before, 51 with 1 bare after. The card was
+  already marking about 96% of them without being told. One render each way
+  settles nothing about the difference, and the honest summary is that the rule
+  makes an implicit habit explicit rather than fixing a defect. It was diagnosed
+  from `fieldguide`'s pages and applied to a card that was not doing the thing
+  wrong.
+
+- **The notation is read through `effigy/go` rather than a private copy.**
+  `parseMes` uses `notation.MES` instead of a second copy of the join rule, and
+  `go.mod` requires `effigy/go v0.1.0` instead of carrying a path replace.
+
 ## v0.4.3 (2026-08-03) — the front page shipped cut off mid-sentence
 
 - **`max_tokens` was 16384 and the front page hit it.** The maximal card is
