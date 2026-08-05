@@ -32,17 +32,17 @@ import (
 // the card or the flag set at run time, so a fact cannot drift from the thing
 // it describes the way a hand-written flag table does.
 type docsFacts struct {
-	Module        string           `json:"module"`
-	NameOrigin    string           `json:"name_origin"`
-	CardSource    string           `json:"card_source"`
-	CardID        string           `json:"card_id"`
-	Composition   composition      `json:"card_composition"`
-	RenderedCard  sizes            `json:"rendered_sizes_chars"`
-	FocusNote     string           `json:"refresher_size_note"`
-	Flags         []flagFact       `json:"flags"`
-	Axes          []axisFact       `json:"axes"`
-	Lanes         []laneFact       `json:"lanes"`
-	RegexRules    []ruleFact       `json:"regex_rules"`
+	Module       string      `json:"module"`
+	NameOrigin   string      `json:"name_origin"`
+	CardSource   string      `json:"card_source"`
+	CardID       string      `json:"card_id"`
+	Composition  composition `json:"card_composition"`
+	RenderedCard sizes       `json:"rendered_sizes_chars"`
+	FocusNote    string      `json:"refresher_size_note"`
+	Flags        []flagFact  `json:"flags"`
+	Axes         []axisFact  `json:"axes"`
+	Lanes        []laneFact  `json:"lanes"`
+	RegexRules   []ruleFact  `json:"regex_rules"`
 
 	// ShippedRegexRules is the same list for the card cope ships. Both are
 	// here for the reason both counts are: a page written under a demo card
@@ -50,7 +50,7 @@ type docsFacts struct {
 	// listed two rules nobody installs and omitted the three everybody gets.
 	ShippedRegexRules []ruleFact `json:"regex_rules_in_shipped_card"`
 
-	ShapeRules []shapeFact `json:"shape_rules"`
+	ShapeRules    []shapeFact      `json:"shape_rules"`
 	Hooks         []hookFact       `json:"hooks"`
 	SettingsJSON  string           `json:"settings_json_block"`
 	StyleInstall  styleInstallFact `json:"output_style_install"`
