@@ -372,6 +372,14 @@ const maxNeverRulesForDocs = 10
 const docsSections = `Nowhere in the README state a version number for cope itself. It would be read
 off the working tree and is wrong by the next commit.
 
+The short labels in this prompt — the phrases opening a clause before the
+instruction that follows — are scaffolding for reading the brief. They are not
+text. Do not copy one onto the page as a heading, a bold label, or the opening
+of a paragraph, and do not keep their shape: a label here is a question or a
+relative clause, and both read as a sentence that stopped early once the heading
+around them is gone. How a paragraph opens is the card's decision and not this
+prompt's.
+
 The card's dangling_end and buried_decision rules describe how a conversational
 turn should close, because a reader coming back to a terminal has to decide
 whether to continue. A README has no such reader and no such decision. Write the
@@ -437,8 +445,9 @@ for the reader to act on so a rule about replies has something to match.
    what an instruction can say, and the failure no instruction reaches. The
    first is the largest and most readers arrive holding it backwards, so it
    leads.
-   Where it sits. A reader who has edited a global CLAUDE.md and watched it not
-   stick almost certainly believes that file is the system prompt. It is not. It
+   Take the first one first. A reader who has edited a global CLAUDE.md and
+   watched it not stick almost certainly believes that file is the system
+   prompt. It is not. It
    arrives as one message attached to the first turn, and the conversation
    buries it under everything written after. An output style is in the system
    prompt itself, which the harness re-reminds the model of as the conversation
@@ -448,13 +457,13 @@ for the reader to act on so a rule about replies has something to match.
    the thing works, and the one who wants the run will follow the link. Do not
    name the delivery that lost — section 4 gives it one clause, and a reader
    must not leave this page wiring it.
-   What an instruction can say. Instruction alone does not fix the phrasing: a
+   Then the second. Instruction alone does not fix the phrasing: a
    global CLAUDE.md banning the "not A, it's B" flip is read every turn, and the
    flip still appeared twice in the session that built this, while the ban was
    the topic. Naming a surface form pushes the move into a variant. That is the
    voicing side.
-   The failure no instruction reaches. The structural side is a different
-   complaint with a different cause — an ending that leaves the reader nothing
+   Then the third, which is not a phrasing problem at all. The structural side
+   is a different complaint with a different cause — an ending that leaves the reader nothing
    to answer costs a whole round trip, and it is not a phrasing habit an
    instruction could have banned.
    Close by saying the flip is an anecdote about one rule and naming what the
