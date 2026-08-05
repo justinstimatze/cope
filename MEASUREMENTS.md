@@ -176,7 +176,7 @@ sequence is worth anything — it was a prediction that failed rather than a fit
 to a number already in hand. Recorded because a 0.57 gap on 105 turns is exactly
 what an encouraging interim looks like, and it survived one day.
 
-### Most of the metric is measuring reply genre, not voice (2026-07-29)
+### Most of the metric moves with reply genre, barely with voice (2026-07-29)
 
 Chasing the null turned up a much larger effect that is not the arm. Split each
 turn by its distance from the boundary of the window it was written in — distance
@@ -224,8 +224,8 @@ against a quantity it has little purchase on.
 
 The drift reading is explained too. Late-half minus early-half will come out
 positive in a session whose second half was implementation-heavy and negative in
-one that ended in discussion. That is task composition, not voice erosion, and it
-is why a 0.57 gap at 105 turns became 0.06 at 238.
+one that ended in discussion. Task composition accounts for that on its
+own, and it is why a 0.57 gap at 105 turns became 0.06 at 238.
 
 And the two rules that do read as voice were stable the whole time. `flip` and
 `clause_symmetry` show no gradient and no arm difference. They are 16% of the
@@ -342,7 +342,7 @@ was, and each failure has a general form.
 been reverted hours earlier. The card is embedded in the binary, so a reverted
 card source and an uninstalled binary disagree in silence. The turn-log version
 stamp added the same morning does not help here: it records which build wrote a
-turn, not which build ran an analysis. Any script that scores prose has to print
+turn. Which build ran an analysis goes unrecorded. Any script that scores prose has to print
 its version and its rule list before scoring, and `cardtest2.sh` onward does.
 
 **Genre in the control group.** The first run's control was six `agent-*.jsonl`
@@ -361,7 +361,8 @@ under a minute afterward.
 ### What the null does and does not cover
 
 The rate is a proxy. It counts the moves the card names in the text that was
-written, not whether the writing is better, and the two can come apart. What
+written. Whether the writing is better is a separate question, and the two
+can come apart. What
 this rules out is the strong version — that assembling the reminder from
 measured output visibly changes how often those moves appear.
 
@@ -401,7 +402,8 @@ section`, with `card` against `framing alone` as a positive control:
 **Pooled across the two runs of the edited card: 30/38, 79%, p=0.0005.**
 Different case samples, same direction, and the gap between 84% and 74% is
 inside the noise at this n. The single-run reading is what the page prints and
-it is the wrong reading: 0.064 is a threshold, not a result.
+it is the wrong reading: 0.064 is the threshold the run was configured
+with, and reading it back as a result inverts what the number is.
 
 The first run's flat 56% is not a fourth data point against the same card. Four
 things changed between it and the two that follow: the `bold_label` ban came
@@ -498,10 +500,10 @@ reading is that 1/12 was an extreme draw regressing to the mean. Both readings
 point the same way in practice, so the two rules are now in the shipped card and
 the NEVER block holds 9 of its 10.
 
-**The voice half is inert, not harmful.** With the handoff rules present on both
+**The voice half is inert.** It neither helps nor hurts. With the handoff rules present on both
 sides, 14,334 characters ties 5,125. The extra 9,209 buy nothing this instrument
-can see, and they are not costing anything either — the earlier 1/12 was the
-missing rules, not the present voice. Whether to carry them is a context-budget
+can see, and they are not costing anything either — the earlier 1/12 came from the
+missing rules. The present voice was never the cause. Whether to carry them is a context-budget
 question rather than a quality one, and at n=11 a small effect in either
 direction stays invisible.
 
@@ -528,7 +530,7 @@ disabled.
 ## Not measured
 
 The rate is not the thing. Every number outside the blind-pairs section counts
-moves the card names, not whether the writing is better, and the pairs are the
+moves the card names. Whether the writing is better is what the pairs are the
 only place the second question gets asked directly. They answer it for one
 reader, over 38 pairs, against one comparator.
 
@@ -615,7 +617,7 @@ sessions in other projects, each reply scored against the twenty before it.
 
 For scale, `dangling_end` was 10.1% of Opus 5 endings and `forked_end` 5.4%.
 
-The worst session is the rule working, not failing. Every phrase it printed
+The worst session shows the rule working. Every phrase it printed
 there is the same preamble family — "let me look at the", "let me check how
 the", "let me check for any", "now let me run the" — in a 6,927-turn session
 where the global CLAUDE.md has banned preamble the whole time. The next worst,
@@ -680,8 +682,8 @@ Backfilled over 34,543 assistant turns from 105 sessions in other projects.
 Per turn the loop lane looks three times cleaner. Per thousand characters it is
 twice as dense. The per-turn number is mostly reply length: loop replies are a
 sixth the size, and most rules in this repo need prose to fire at all. One
-session's loop replies averaged 37 characters, which is not a report, it is
-"nothing to do".
+session's loop replies averaged 37 characters, which is "nothing to do"
+wearing the shape of a report.
 
 The rate is not a like-for-like comparison — the two lanes run different rule
 sets by construction — so the number to read is the examples.
@@ -731,7 +733,8 @@ same thing twice.
 
 The honest limit: 941 loop turns against 33,602 interactive ones is a 2.7%
 sample, from eight sessions, and one of those sessions supplies 422 of them. A
-rate from that is a rate from one person's loops, not from the lane.
+rate from that describes one person's loops. The lane is a different
+population.
 
 ## The voicing arrives: 90% discrimination (2026-08-02)
 
@@ -760,7 +763,8 @@ Every one of the six misses came when the card was the target. Spartan brevity
 is unmistakable; "plain prose that costs the reader nothing" sits nearer to
 default Claude, and is found rather than spotted.
 
-**This is the model judge, not the reader, and the two have not been compared.**
+**This is the model judge. The reader is a separate question, and the two
+have not been compared.**
 The harness prints agreement between them precisely because a judge's rate is a
 fact about a model until that number exists. Read it as: a model given a voice
 description and two replies picks correctly nine times in ten. Whether a person
@@ -931,6 +935,5 @@ Run through the hook, the same card — bolded label on every paragraph, emoji o
 every heading — produced prose indistinguishable from no card at all.
 
 **What this does not say.** A bolded-label count is a compliance proxy, picked
-because it is countable and unambiguous, not because markup is what a card is
-for. It says an instruction arrived. It says nothing about whether the writing
+because it is countable and unambiguous. Markup is not what a card is for. It says an instruction arrived. It says nothing about whether the writing
 got better, which is what the discrimination runs above are for.

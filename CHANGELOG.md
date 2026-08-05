@@ -130,7 +130,8 @@
   think we should ship it also" alone.
 - **The rule of three is a NEVER rule.** It is the third device in that family
   and the card had nothing on it. Stated as a threshold rather than a ban: reach
-  for three when there are three things, not because three sounds finished.
+  for three when there are three things, and never because three sounds
+  finished.
 - **A sentence-length uniformity detector was measured and not shipped.** The
   card's kernel already asks for sentences that vary in length and nothing checks
   it, so the rule looked obvious. Across 2,953 replies of six sentences or more
@@ -159,7 +160,8 @@
   costs: 27 samples, 22 usable after five empty responses, counting bolded-label
   paragraphs. Card as system prompt, 9.4 per reply. Card plus a global
   CLAUDE.md, 6.3. CLAUDE.md alone, 1.0. So 63–86% of the effect survives
-  alongside other instructions and the failure was position, not interference.
+  alongside other instructions and the failure was position; interference
+  was ruled out.
   Claude Code's own documentation says an output style's instructions are added
   to the system prompt and that the harness re-reminds the model of them during
   the conversation; a `SessionStart` message gets neither. Selection is
@@ -250,7 +252,7 @@
   - The detector still runs. Only the scoring card's own hits are dropped, so a
     backfill still reports what the rule would have caught, and one card's
     exemption cannot change what another card is measured against.
-  - `Allow` is applied in three places, not one: `Check`, the end of
+  - `Allow` is applied in three places — `Check`, the end of
     `CheckLane` for the two loop-only rules, and around `cross_turn_repeat` in
     `checkAgainst`, which is produced outside the card and would otherwise have
     been the one rule an `@gate` line silently failed to turn off.
@@ -284,7 +286,8 @@
   column as something other than a verdict than any sentence on that page.
 ## v0.3.0 (2026-08-03) — the docs said things the code did not
 
-- **The card is built from measurement, not from folklore.** First draft came
+- **The card is built from measurement.** Every rule in it traces back to a
+  count. First draft came
   from claudisms.ai, a public CC0 banlist of AI-writing tells. Checking it
   against basanite's measured tic list — audited over roughly 4M tokens
   of real output — found the two lists disagree: "at the end of the day",
@@ -412,7 +415,8 @@
   and a voicing framework whose second voice needs a build step has one voice.
   `tools/card2json.py` stays the build-time path for the embedded card and CI
   still regenerates through it, so effigy remains the authority on the notation.
-- **The two parsers are held together by an oracle test, not by care.**
+- **The two parsers are held together by an oracle test.** Care alone would
+  not keep them in step.
   `TestAgreesWithCard2json` runs every card in the repo through both and
   compares the results, because the fixture that would have caught a bug is the
   card somebody actually wrote. Compared as values rather than bytes: the Python
@@ -425,7 +429,7 @@
   `make cards` installs the demos. A name that resolves to nothing is an error
   and nothing is injected — falling back to the built-in card would leave a
   session writing in the shipped voice while its config named another one, which
-  reads as the card not working rather than as a typo.
+  reads as the card silently failing, when the cause is a typo.
 - **`card/demo/lecturer.effigy`, the first rival a discrimination run can learn
   anything from.** The other demos are identifiable before a reader forms any
   view about voice — laconic is four words long, caveman has no articles,
@@ -458,13 +462,15 @@
 - **`-judge` answers the same pairs with the model**, so revising a card costs a
   run rather than an evening. It is not trusted alone: it answers what the
   reader answers and the page reports the agreement, because until that number
-  is looked at its rate is a fact about a model, not about a voice.
+  is looked at its rate is a fact about a model. It says nothing about a
+  voice.
 - **The answer's side is balanced, which is not the same as the card's side.**
   `balanceSides` puts the card left in half the pairs, which is the answer on a
   preference run. Here the target is the rival in half the pairs, so the answer
   landed on the right in five of six on the first live run — free marks for any
   reader with a side habit, in the one direction blinding cannot cover.
-- **A truncated judge reply is missing data, not an answer of "unsure".** Opus 5
+- **A truncated judge reply is missing data.** It has to be dropped, never
+  scored as an answer of "unsure". Opus 5
   emits a thinking block ahead of its text whether or not it was asked for, so a
   ceiling sized for the one-word answer left no room for the answer: six pairs
   came back "unsure", indistinguishable at a glance from a judge that could not
@@ -487,7 +493,7 @@
   which is what a lane-blind gate cannot see. `unverified_done` fired once, so
   it keeps its detector and loses its card entry; the card already carries an
   always-on rule against calling written work verified.
-- **Loop replies are shorter, not cleaner.** Across 34,543 turns from 105
+- **Loop replies are shorter.** They are no cleaner. Across 34,543 turns from 105
   sessions: interactive hits on 62.4% of turns at 2,757 chars mean, loop on
   21.1% at 427. Per thousand characters that is 0.23 against 0.50 — the loop
   lane is twice as dense. One session's loop replies averaged 37 characters,
