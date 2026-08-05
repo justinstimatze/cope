@@ -14,14 +14,14 @@ generator, same model. What you can count on the page:
 <!-- side-by-side:start -->
 | | `claude_maximal` | `claude_voice` |
 |---|---|---|
-| paragraphs opening on a bold label | 62 | 0 |
-| em dashes | 86 | 39 |
-| headings carrying an emoji | 15 | 0 |
-| horizontal rules | 23 | 1 |
-| tables for things that are not tabular | 5 | 2 |
-| blockquote callouts | 3 | 0 |
-| emoji in the body text | 17 | 0 |
-| sentences apologising or taking the blame | 25 | 0 |
+| paragraphs opening on a bold label | 54 | 0 |
+| em dashes | 74 | 45 |
+| headings carrying an emoji | 14 | 0 |
+| horizontal rules | 19 | 1 |
+| tables for things that are not tabular | 5 | 0 |
+| blockquote callouts | 2 | 0 |
+| emoji in the body text | 22 | 0 |
+| sentences apologising or taking the blame | 33 | 0 |
 <!-- side-by-side:end -->
 
 The repository's front page is a demo render on purpose —
@@ -85,12 +85,12 @@ demonstrated brevity, which its own first line already says.
 <!-- sizes:start -->
 | Card | Output | Characters |
 |---|---|---|
-| `card/claude_voice.effigy` | [`README.claude-voice.md`](README.claude-voice.md) | 21,726 |
-| `card/demo/claude_maximal.effigy` | [`README.claude-maximal.md`](README.claude-maximal.md) | 32,468 |
-| `card/demo/precise.effigy` | [`README.precise.md`](README.precise.md) | 20,188 |
-| `card/demo/caveman.effigy` | [`README.caveman.md`](README.caveman.md) | 19,188 |
-| `card/demo/lecturer.effigy` | [`README.lecturer.md`](README.lecturer.md) | 24,256 |
-| `card/demo/fieldguide.effigy` | [`README.fieldguide.md`](README.fieldguide.md) | 21,506 |
+| `card/claude_voice.effigy` | [`README.claude-voice.md`](README.claude-voice.md) | 22,058 |
+| `card/demo/claude_maximal.effigy` | [`README.claude-maximal.md`](README.claude-maximal.md) | 33,430 |
+| `card/demo/precise.effigy` | [`README.precise.md`](README.precise.md) | 20,151 |
+| `card/demo/caveman.effigy` | [`README.caveman.md`](README.caveman.md) | 20,186 |
+| `card/demo/lecturer.effigy` | [`README.lecturer.md`](README.lecturer.md) | 25,648 |
+| `card/demo/fieldguide.effigy` | [`README.fieldguide.md`](README.fieldguide.md) | 21,921 |
 <!-- sizes:end -->
 
 `card/demo/handoff.effigy` is in the directory and not in the table. It is a
@@ -127,12 +127,12 @@ change and the way it changed is the useful part.
 <!-- scores:start -->
 | Page | scored by the shipped card | scored by its own card |
 |---|---|---|
-| [`README.claude-voice.md`](README.claude-voice.md) | 5 | the same card |
-| [`README.claude-maximal.md`](README.claude-maximal.md) | 14 | 9 |
+| [`README.claude-voice.md`](README.claude-voice.md) | 4 | the same card |
+| [`README.claude-maximal.md`](README.claude-maximal.md) | 7 | 6 |
 | [`README.precise.md`](README.precise.md) | 3 | 3 |
-| [`README.caveman.md`](README.caveman.md) | 7 | 7 |
-| [`README.lecturer.md`](README.lecturer.md) | 5 | 2 |
-| [`README.fieldguide.md`](README.fieldguide.md) | 25 | 4 |
+| [`README.caveman.md`](README.caveman.md) | 10 | 10 |
+| [`README.lecturer.md`](README.lecturer.md) | 5 | 1 |
+| [`README.fieldguide.md`](README.fieldguide.md) | 38 | 4 |
 <!-- scores:end -->
 
 Read that table in two columns rather than one. The left one runs the shipped
@@ -157,9 +157,9 @@ None of that is markup. It is the prose, and the gate found all of it:
 <!-- maximal-hits:start -->
 | rule | hits on `claude_maximal` |
 |---|---|
-| `clause_symmetry` | 7 |
-| `flip` | 5 |
-| `ask_not_last` | 1 |
+| `clause_symmetry` | 4 |
+| `flip` | 1 |
+| `labelled_opening` | 1 |
 | `apology` | 1 |
 <!-- maximal-hits:end -->
 
@@ -194,7 +194,7 @@ hits comes from a sentence rather than from anything you can see at a glance.
 ## Most of the gate never fires on a document
 
 <!-- totals:start -->
-Across 6 renders and 139,332 characters, 6 of the sixteen rules fired at all: `labelled_opening` 29, `clause_symmetry` 20, `flip` 6, `ask_not_last` 2, `apology` 1, `load_bearing` 1.
+Across 6 renders and 143,394 characters, 5 of the sixteen rules fired at all: `labelled_opening` 45, `clause_symmetry` 18, `ask_not_last` 2, `flip` 1, `apology` 1.
 <!-- totals:end -->
 
 Two of them carry it and the rest are a long tail. Nothing else in the gate

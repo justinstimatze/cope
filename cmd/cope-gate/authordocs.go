@@ -372,6 +372,27 @@ const maxNeverRulesForDocs = 10
 const docsSections = `Nowhere in the README state a version number for cope itself. It would be read
 off the working tree and is wrong by the next commit.
 
+The same goes for any figure a rebuild changes. Rendered sizes, character
+counts, how many rules a card holds: state these ONLY where the fact is the
+point of the sentence and the sentence would be empty without it. A number
+copied into prose as colour is wrong at the next card edit and nobody rebuilds
+the page to find out. The counts in facts are there to keep a claim honest, not
+to be quoted for texture.
+
+Every identifier goes in backticks, every time it appears — file paths, rule
+ids, flag names, commands, card block names, the @gate and @shape forms. Two
+conventions on one page is worse than either, and a bare rule id mid-sentence
+reads as a typo the reader has to stop and rule out. A markdown link counts as
+marked; a second mention in the same paragraph still needs its backticks.
+Where a placeholder needs angle brackets, put the whole thing inside backticks
+so nothing has to be escaped. Never write an HTML entity — no &lt;, no &gt;, no
+&amp;. A reader looking at the raw file sees exactly what you typed.
+
+Refer to another part of this page by naming its subject in your own words, not
+by using its heading as a noun. A heading pressed into service as the subject
+of a sentence parses badly, and the headings are yours to choose, so a sentence
+depending on one is a sentence depending on a decision you have not made yet.
+
 The short labels in this prompt — the phrases opening a clause before the
 instruction that follows — are scaffolding for reading the brief. They are not
 text. Do not copy one onto the page as a heading, a bold label, or the opening
@@ -405,10 +426,12 @@ for the reader to act on so a rule about replies has something to match.
    is taking prose about registers on trust. Link it as demo/README.md. Mention
    the maximal one by name — demo/README.claude-maximal.md, written from a card
    that instructs every tic this model is measured to have — as the one that
-   makes the point in a single glance, and say in the same breath that it is
-   deliberately hard going. A reader who clicks it forewarned finds it funny;
-   the same reader landing in it unwarned finds the thing they came here to get
-   away from. Name it, do not recommend it.
+   makes the point in a single glance. The warning that it is deliberately hard
+   going belongs INSIDE that sentence, as a clause — not appended after it as a
+   fragment, which is how it landed the first time and reads as a stub bolted on
+   at the end. A reader who clicks it forewarned finds it funny; the same reader
+   landing in it unwarned finds the thing they came here to get away from. Name
+   it, do not recommend it.
    ONE EXCEPTION, only when the user message says this render IS the front page:
    the front page is written from the fieldguide card, so demo/README.fieldguide.md
    is this page under another path. Do not send a reader to it. Every other link
@@ -476,8 +499,11 @@ for the reader to act on so a rule about replies has something to match.
 4. Install, in the order somebody actually does it, and the order matters more
    here than anywhere else on the page. Two commands and one menu choice, from
    facts.output_style_install: the go install line, then setup, then the
-   selection. Lead with those and give them as a copyable block. Say what setup
-   did rather than listing what it saves the reader from doing, and include that
+   selection. Lead with those and give them as a copyable block. Keep the prose
+   in that same order afterwards — what the two commands did, and only then the
+   menu choice that follows them. Naming the last step before explaining the one
+   before it makes a reader who is following along stop and scroll. Say what
+   setup did rather than listing what it saves the reader from doing, and include that
    it backs the settings file up, that a second run changes nothing, and that it
    leaves other tools' hooks alone — a reader letting a tool edit their settings
    deserves to know the shape of it before they run it, not after. Mention
@@ -492,19 +518,27 @@ for the reader to act on so a rule about replies has something to match.
    fenced json code block as the hooks block of ~/.claude/settings.json. Copy it
    character for character, do not reformat or abbreviate it, and do not add a
    hook that is not in it — in particular do not add SessionStart, which is
-   absent on purpose. Say what the two remaining hooks buy, from facts.hooks:
-   scoring the reply after it is written, and restating mid-session the rules
-   that have actually been firing, which a file written once cannot do. Say that
-   the voice works without either of them and these are the measurement half.
+   absent on purpose. Say what the two remaining hooks BUY, in one sentence
+   each, and no more than that: the reply gets scored after it is written, and
+   the rules that have actually been firing get restated mid-session, which a
+   file written once cannot do. The mechanics — what each hook reads, what it
+   writes, what it falls back to — belong to the scoring section further down
+   and must not appear twice. A reader meeting the same two paragraphs again
+   checks whether they have scrolled backwards. Say that the voice works without
+   either of them and these are the measurement half.
    Under the block, one sentence that the commands assume go install's target
    directory is on PATH in the environment the hook runs in, and that a hook
    which silently does nothing usually wants the absolute path instead. Note
    that a clone builds with make install and needs no effigy checkout, because
    card/rules.json is committed and compiled in.
-   Mention --inject exactly once, in one clause, as the superseded delivery that
-   remains for anyone who wants it and stands down on its own when a cope output
-   style is active. Do not explain it further and do not put it in a code block:
-   a reader following this page must not end up wiring the weak path.
+   Mention --inject in one clause here, as the superseded delivery that remains
+   for anyone who wants it and stands down on its own when a cope output style
+   is active. That clause is the ONLY prose mention of it on the whole page —
+   the flag table lists it because the flag table lists everything, and that
+   does not count, but no later section may name it again. It has appeared three
+   times on this page before now. Do not explain it further and do not put it in
+   a code block: a reader following this page must not end up wiring the weak
+   path.
 5. Writing in another voice. This is the capability the first sentence promised,
    so it comes before the machinery rather than after it. The gate reads .effigy
    directly, so a card is usable as written and needs no Python and no effigy
@@ -539,11 +573,15 @@ for the reader to act on so a rule about replies has something to match.
    measured output rather than fixed in advance, which is the one thing a
    pasted CLAUDE.md cannot do. Say this plainly and without overselling: it is
    one mechanism, not a guarantee, and the A/B in the repo does not separate
-   the refresher from no refresher. SessionStart --inject gets one closing
-   sentence at most, stated as superseded and off by default; do not lead the
-   section with it and do not imply --setup wires it. Do not number the hooks
-   in the heading — the count has changed once already and a heading that
-   carries it goes stale silently.
+   the refresher from no refresher. Do NOT mention --inject or SessionStart
+   here: the install section already gave it its one clause, and a superseded
+   path named twice on one page starts to look like an option. Do not number
+   the hooks in the heading — the count has changed once already and a heading
+   that carries it goes stale silently.
+   This section owns the mechanics, so it is where the detail goes: what each
+   hook reads, what it writes, what it falls back to, when it stays quiet. The
+   install section carries one sentence each and no more, and the two must not
+   read as the same two paragraphs twice.
 7. Why effigy notation, in two or three sentences from facts.related_projects,
    and why basanite is the wrong instrument for this in one more. A reader who
    knows neither project should still follow it.
