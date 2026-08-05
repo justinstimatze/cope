@@ -671,3 +671,61 @@ func TestContextAroundStaysValidUTF8(t *testing.T) {
 		}
 	}
 }
+
+// The flip rule shipped for months matching only "not A, it's B". Every
+// instance in one downstream repo's docs was the mirror image, "A, not B",
+// so six real flips sat in a file the gate called clean. These fixtures pin
+// both surfaces, and pin the enumerated negation the pattern must leave
+// alone — a list of negations is emphasis, and correcting it would train
+// writers out of a construction the card does not forbid.
+func TestFlipRuleCatchesBothSurfaces(t *testing.T) {
+	c, _, err := ParseCard(card.RulesJSON)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fires := func(text string) bool {
+		for _, v := range c.Regex(text) {
+			if v.RuleID == "flip" {
+				return true
+			}
+		}
+		return false
+	}
+
+	inverted := []string{
+		"That is a step function, not a decay curve, and the step scales with context.",
+		"The log records failures, not activity, so it is normally empty.",
+		"Entries here are decisions, not bugs.",
+		"So the variable is calendar time, not session identity.",
+		"The activity timestamp is a file's mtime, not its contents.",
+	}
+	for _, s := range inverted {
+		if !fires(s) {
+			t.Errorf("missed the inverted flip: %q", s)
+		}
+	}
+
+	// The original surface has to keep working.
+	forward := []string{
+		"It is not slow, it's blocked on the disk here.",
+		"This isn't a tooling question, it's a workflow question.",
+	}
+	for _, s := range forward {
+		if !fires(s) {
+			t.Errorf("regressed on the original surface: %q", s)
+		}
+	}
+
+	spared := []string{
+		"It makes no network calls at all - not to Anthropic, not anywhere.",
+		"Not for telemetry, not for update checks, and not to keep a cache warm.",
+		"If the record is corrupt, do not wedge the session.",
+		"Both run against throwaway directories. Neither makes a network call.",
+	}
+	for _, s := range spared {
+		if fires(s) {
+			t.Errorf("fired on a construction the card allows: %q", s)
+		}
+	}
+}
