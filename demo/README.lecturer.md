@@ -1,43 +1,43 @@
 # cope
 
-cope ships one opinionated card — a cope being the upper half of a foundry mould, the half carrying the shape being cast into — and once it is installed that card is on, checking two different jobs rather than one, how a reply sounds and how a reply is shaped, with the card itself being only a file you can edit or swap for another.
+cope ships one opinionated card, on from the moment you install it, and it watches two different jobs in every reply the model writes — how the sentences sound, and how the reply is shaped for whoever has to act on it — and because that card is a file, the sounding half is yours to edit or swap; a cope is the upper half of a foundry mould, the half carrying the shape being cast into.
 
-The short way in is [demo/README.md](demo/README.md), where every file is this same page written again from a different card, the same prompt and the same facts behind each one, so the card is the only thing that varies between them; two of them read against each other will show you what a card does faster than the rest of this page can explain it. The one that makes the point in a single glance is [demo/README.claude-maximal.md](demo/README.claude-maximal.md), written from a card that instructs every tic this model is measured to have. A reader who takes the link understands the tool. A reader who does not is taking prose about registers on trust.
+Start here: [demo/README.md](demo/README.md).
+
+Every file in that directory is this page written again from a different card, same prompt and same facts, so the card is the only thing that changed between them. Reading two of them against each other shows what a card does faster than the rest of this page explains it, and a reader who does not follow the link is taking prose about registers on trust. [demo/README.claude-maximal.md](demo/README.claude-maximal.md) makes the point in a single glance, written from a card that instructs every tic this model is measured to have, and it is deliberately hard going.
 
 ## The two things it checks
 
-Voicing is what the sentences sound like: register, rhythm, diction, what a paragraph does with a detail, and where flair is licensed. All of it lives in the card, and swapping the card swaps every word of it, which is also why voicing is the half with a measured result behind it. Structure is something else entirely — the shape of the reply as a thing you have to use, meaning where the decision sits, whether the ending gives "continue" anything to refer to, whether an ask is last, whether a claim that the work is done carries anything that could have shown it. That half is compiled into the binary and is the same whichever card is loaded. A sentence reaching for the balanced two-beat is a voicing problem; a reply that names an open problem in its closing paragraph and then stops, leaving you nothing to answer, is a structural one. The same reply can be clean on one axis and useless on the other, and that is the whole reason for keeping them apart.
+Voicing is what the sentences sound like: register, rhythm, diction, what a paragraph does with a detail, and where flair is licensed. All of it lives in the card, which is why swapping the card swaps every word of it, and it is the half with a measured result behind it. Structure is a different job — where the decision sits, whether the ending gives "continue" anything to refer to, whether an ask is last, whether a claim that the work is done carries anything that could have shown it — and that half is compiled into the binary, identical whichever card is loaded. A sentence reaching for the balanced two-beat, two clauses of near-equal length repeating a content word across the joint, is a voicing problem. A reply that names an open problem in its last paragraph and then stops is a structural one, and it can be beautifully written on the way there. The same reply can be fine on one axis and bad on the other, which is the whole reason to keep them apart.
 
-A card does reach into the structure half, though not far, and this is the part that has most recently changed. It reaches in two directions. A card can decline a built-in rule with `@gate <rule_id> off — <why>`, one per line in the card header, which exists because a card whose VOICE block asked for something a built-in rule catches was being marked down for obeying itself: `card/demo/lecturer.effigy` declines `clause_symmetry` and `dangling_end` for exactly that reason, since its register asks for the balanced landing and the arriving close. A card can also assert a rule of its own with `@shape <id>: <selector> <predicate> — <why>`, again one per line in the header, which exists because a card's own commitment about how a reply ends had nowhere to be checked: `card/demo/handoff.effigy` asserts `readable_cold` — last paragraph words <= 60 — because its peak asks the reader to re-enter cold and read the closing block alone, and no built-in rule asks whether that block can be read that way. The 60 is not a taste; across 43,155 assistant replies the closing block runs 33 words at the median and 56 at p90.
+A card reaches into the structure half in two directions, and both of them are narrow. It can decline a rule, with `@gate <rule_id> off — <why>` one per line in the card header, which exists because a card whose VOICE block asked for a landing that a built-in rule catches was being marked down for obeying itself. It can also assert one of its own, with `@shape <id>: <selector> <predicate> — <why>`, which exists because a card's own commitment about how a reply ends had nowhere to be checked. What a card writes those assertions in counts words and sentences and asks whether a block poses a question, and nothing more, so a check outside that vocabulary and outside a POSTPROC regex still has nowhere to live.
 
-What a card cannot do is write the checks that needed more than counting. The `@shape` vocabulary counts words and sentences and asks whether a block poses a question, so `clause_symmetry` is not writable in it and was never meant to be, and a card wanting a check outside both that vocabulary and a POSTPROC regex still has nowhere to put it.
+## The problem
 
-## Why instruction is not enough
+You have probably edited a global CLAUDE.md, told it something plain about how you wanted replies written, and watched the model comply for three turns and then quietly stop. The instinctive reading of that is that the model is careless. The likelier one is that you were writing into the wrong slot. A global CLAUDE.md is not the system prompt: it arrives as one message attached to the first turn, and every turn written after it pushes it further down the transcript, until it is one old note among forty newer ones. An output style sits in the system prompt itself, where the harness re-reminds the model of it as the conversation runs. Take one card, change no word of it, and move it from the first place to the second. That move is most of why cope works, and it was measured — [MEASUREMENTS.md](MEASUREMENTS.md) has the run.
 
-Tell a model never to write a particular sentence and what it hears is the sentence, not the move underneath it. On the machine this was built on there is a global CLAUDE.md banning the not-A-it's-B flip in as many words, and that file is read at the top of every single turn. The flip appeared twice during the session that built cope, while the ban was the topic under discussion. Naming a surface form does not remove the move; it relocates it into a variant. The instruction was obeyed and the habit survived.
+Delivery is only the first part, because instruction alone does not fix the phrasing either. A global CLAUDE.md banning the "not A, it's B" flip is read on every turn of every session. That flip appeared twice in the session that built this repo, while the ban was the topic of the session. Name a surface form and the move steps sideways into a variant of itself, which is why the card carries anti-patterns beside their replacements and named tests rather than a list of forbidden strings.
 
-The structural complaint has a different cause and cannot be reached the same way. When a reply names an open problem in its last paragraph and stops, nothing in the wording is wrong, and no ban on phrasing could have caught it — what it costs you is a whole round trip, you typing the question the reply should have asked on your behalf.
+The structural complaint has a different cause and a different cost. A reply that ends by naming an open problem and offering nothing to answer buys you a whole round trip you did not need, and no instruction could have banned it, because it is not a habit of phrasing at all. It is a shape.
 
-The flip is an anecdote about one rule, and it is worth being clear about what the claim actually rests on. It rests on the blind discrimination test, where a reader is shown a voice's own description of itself and two replies, and picks which of the two was written under it. MEASUREMENTS.md has the rate, and more usefully the caveats.
+The flip, though, is an anecdote about one rule, and it is not what the claim rests on. What it rests on is the blind discrimination test: a reader is shown a voice's own description of itself and two replies, one written under that voice and one not, and asked to pick. [MEASUREMENTS.md](MEASUREMENTS.md) has the rate and the caveats that come attached to it.
 
 ## Install
 
-Two commands, then one menu choice.
-
-```
+```sh
 go install github.com/justinstimatze/cope/cmd/cope-gate@latest
 cope-gate --setup
 ```
 
-Letting a tool edit your settings is a thing you should know the shape of beforehand rather than afterwards, so here is the shape of it. `--setup` emits the output style and wires the two hooks into `~/.claude/settings.json` with absolute paths, then prints the one step left. It backs the settings file up before touching it, it adds only what is missing so a second run changes nothing at all, it leaves every other key alone including other tools' hooks on the same events, and it refuses outright to touch a settings file that does not parse — and `--setup --dry-run` prints what it would change while writing nothing.
+One menu choice is left, and `--setup` prints it: the style is selected under `/config` → Output style. The standalone `/output-style` command was removed in Claude Code v2.1.91, so `/config` is the way in; the same thing can be set as `"outputStyle"` in `.claude/settings.local.json`.
 
-Anyone who would rather not have their settings written to can emit the style by hand: `cope-gate --output-style` writes the loaded card to `~/.claude/output-styles/<card>.md`, and `COPE_CARD=<name>` in front of it emits a different one.
+What `--setup` did is worth knowing before you run it rather than after, since it edits a file you care about. It emits the output style, wires the two hooks into `~/.claude/settings.json` with absolute paths, and prints the remaining step. It backs the settings file up first, adds only what is missing so a second run changes nothing, leaves every other key alone including other tools' hooks on the same events, and refuses outright to touch a settings file that does not parse — and `--setup --dry-run` prints what it would change and writes nothing.
 
-The menu choice is under `/config` -> Output style. The standalone `/output-style` command was removed in Claude Code v2.1.91, so `/config` is the way in, and the same thing can be set as `"outputStyle"` in `.claude/settings.local.json`. One thing to know before you look for a change and fail to find one: a style is read once at session start, so a new selection or a re-emitted card applies at the next session, or after `/clear`.
+If you would rather nothing wrote to your settings at all, `cope-gate --output-style` writes the loaded card to `~/.claude/output-styles/<card>.md` and stops there, and `COPE_CARD=<name>` in front of it emits a different one.
 
-An output style goes at the end of the system prompt and the harness re-reminds the model of it as the conversation runs, which is why the card lands from there and did not land from a hook.
+A style is read once at session start. So a new selection, or a re-emitted card, applies at the next session or after `/clear`, and a reader who picks the style and watches the running conversation for a change will see none and conclude the tool is broken. The reason the card goes into a style rather than a hook is the one the previous section gave: the style lands at the end of the system prompt, where the harness keeps re-reminding the model of it.
 
-The hooks are for something else now, and the card no longer arrives through one of them. This is the hooks block of `~/.claude/settings.json`:
+The hooks are the other half, and the card no longer arrives through any of them:
 
 ```json
 {
@@ -61,64 +61,68 @@ The hooks are for something else now, and the card no longer arrives through one
 }
 ```
 
-Stop scores the reply that was just written and records which rules fired. UserPromptSubmit reads that record and restates, mid-session, the items that have actually been firing — which is the one thing a file written once cannot do. The voice works with neither of them installed. These two are the measurement half.
+Stop scores the reply just written. UserPromptSubmit restates, mid-session, the rules that have actually been firing — something a file written once at session start cannot do. The voice works without either of them; these two are the measurement half.
 
-Both commands assume that go install's target directory is on PATH in the environment the hook runs in, and a hook that silently does nothing almost always wants the absolute path instead. From a clone, `make install` builds it and no effigy checkout is needed, because `card/rules.json` is committed and compiled in. There is also a superseded SessionStart delivery, `--inject`, which remains for anyone who wants the old behaviour and stands down on its own when a cope output style is active.
+Both commands assume that `go install`'s target directory is on `PATH` in the environment the hook runs in, and a hook that silently does nothing usually wants the absolute path instead. A clone builds with `make install` and needs no effigy checkout, because `card/rules.json` is committed and compiled into the binary. There is also `--inject`, the superseded SessionStart delivery, kept for anyone who wants it and standing down on its own whenever a cope output style is active.
 
 ## Writing in another voice
 
-The gate reads `.effigy` directly, so a card is usable exactly as written, with no Python and no effigy checkout anywhere near it. A card dropped in `$XDG_CONFIG_HOME/cope/cards` is reached by `--card <name>` or by `COPE_CARD`; `--rules` takes a path from anywhere on disk; `make cards` installs the demo set. A name that resolves to nothing is an error and nothing is injected at all, which is deliberate — the alternative is a session writing in the shipped voice while its config confidently names another one.
+The gate reads `.effigy` directly, which means a card is usable exactly as written, with no Python and no effigy checkout anywhere in the loop. A card dropped in `$XDG_CONFIG_HOME/cope/cards` is reached by `--card <name>` or by `COPE_CARD`; `--rules` takes a path from anywhere on disk; `make cards` installs the demo set. A name that resolves to nothing is an error and nothing is injected, which is deliberate — the alternative is a session writing happily in the shipped voice while its config names another one, and that failure is invisible for as long as you keep reading.
 
-The one to read first is `card/demo/lecturer.effigy`, because it differs from the shipped card on register alone, and it is the card the discrimination run measured. What a card changes is the voicing half described under **The two things it checks**, and the numbers for that live in MEASUREMENTS.md rather than here.
+The card to read first is `card/demo/lecturer.effigy`, because it differs from the shipped card on register alone and it is the card the discrimination run measured. What a card can change is the voicing axis, in the sense given under "The two things it checks", and the structure rules stay where they are compiled.
 
-Seeing what a card does without writing one takes about a minute at [demo/README.md](demo/README.md), where each file is this page again under a different card, same prompt, same facts, voice the only variable.
+Shorter than reading any card is reading two pages written from different ones: [demo/README.md](demo/README.md) is this README rendered again under each demo card, from the same prompt and the same facts.
 
-One file in that directory is not a voice at all: `card/demo/handoff.effigy` is a hypothesis, keeping the shipped card's handoff rules and dropping everything about prose, and it is meant to go through `make pairs` against the full card rather than to be rendered. `make cards` installs it with the others, so anyone listing their cards will find it sitting there among them, looking like a register it is not.
+One file there is not a voice at all. `card/demo/handoff.effigy` is a hypothesis: it keeps the shipped card's handoff rules, drops everything about prose, and is meant to be run through `make pairs` against the full card rather than rendered — `make cards` installs it with the rest, so anyone listing their cards will find it sitting among them looking like a register to write in.
 
-## What the hooks do that a file cannot
+## What the hooks add
 
-Stop fires after the reply exists, scores it against the loaded card, appends which rules fired to the session's rolling state, and writes one record per violation to the log. UserPromptSubmit then reads that rolling state — the state, not the violations log — and injects the card items gated on what has been firing, naming the counts as it goes, once the last injection has aged past `--refresh-every`. When a session has no history yet it falls back to the standing CONTINUE TEST. So the mid-session text is selected from measured output rather than fixed in advance, which is the thing a pasted CLAUDE.md cannot manage.
+Stop runs after a reply is written. It scores that reply, appends which rules fired to the session's rolling state, and writes one record per violation to the log.
 
-That is one mechanism and not a guarantee, and it should be read as such: the A/B in this repo does not separate the refresher from no refresher. The old SessionStart delivery via `--inject` is superseded and off by default, and `--setup` does not wire it.
+UserPromptSubmit is the interesting one, and the reason is in what it reads. It reads the rolling state rather than the violations log, and injects the card items gated on what has been firing lately, naming the counts. So the mid-session text is chosen from your measured output instead of being fixed in advance, which is the one thing a pasted CLAUDE.md structurally cannot do. It falls back to the card's standing reminder when the session has no history yet, and stays quiet until the last injection has aged past `--refresh-every`. Claiming more for it than that would be dishonest: it is one mechanism, and the A/B in this repo does not separate the refresher from no refresher at all. The old SessionStart delivery still exists, superseded and off by default, and `--setup` does not wire it.
 
 ## Why effigy notation
 
-[effigy](https://github.com/justinstimatze/effigy) is a character-card notation for game NPCs, used here well off-label, and three of its blocks happen to be exactly what a prose gate wants: POSTPROC is regex rules with a warn action applied after generation, WRONG holds an anti-pattern beside its replacement, and TEST holds a named question with a failing and a passing example. That last one is why a rule in a card can name a move rather than one wording of it.
+A prose gate needs three things written down that most config formats have no slot for, and [effigy](https://github.com/justinstimatze/effigy) — a character-card notation for game NPCs, used here entirely off-label — happens to have all three. POSTPROC is regex rules with a warn action applied after generation. WRONG holds an anti-pattern beside its replacement, so a card can show the same content written worse and better instead of describing the difference. TEST holds a named question with a failing and a passing example, which is how a rule names a move rather than one wording of it.
 
-[basanite](https://github.com/justinstimatze/basanite) answers the same problem from the opposite end, and it is the one to reach for when this one is too blunt. cope bans: a rule fires or it does not, the card says never, and the register is fixed the moment you choose it. basanite measures instead, comparing lemma frequency against a baseline over real transcripts, so it reports what you have been leaning on lately and leaves the judgement with you — its own README calls that awareness rather than prohibition. Which one fits is a question about mood more than about correctness, since a heavy hand is what you want when a habit is annoying you today and a moving measurement is what you want when you would rather watch the drift than legislate it. They compose, on different hooks with no shared state, and running both is reasonable.
-
-There is a third axis again in [caveman](https://github.com/JuliusBrussee/caveman), a separate project by a different author that compresses agent replies to cut output tokens. cope shapes prose, basanite tracks vocabulary, caveman shortens. Wanting fewer tokens rather than different structure is a reason to go there instead.
+[basanite](https://github.com/justinstimatze/basanite) answers the same problem the other way round, and it is the one to reach for when this one is too blunt. cope bans: a rule fires or it does not, the card says never, and the register is fixed the moment you pick it. basanite measures instead, tracking lemma frequency against a baseline over real transcripts, so it reports what you have been leaning on lately and leaves the judgement with you — its own README calls that awareness rather than prohibition. Which one fits is a question about mood more than about correctness: a heavy hand is what you want when a habit is annoying you today, and a moving measurement is what you want when you would rather watch the drift than legislate it. They compose, on different hooks with no shared state, and running both is reasonable. A reader who wants fewer output tokens rather than a different structure wants neither, and should look at [caveman](https://github.com/JuliusBrussee/caveman), which is a separate project by a different author that compresses agent replies.
 
 ## The rules
 
-Grouping them by where they are implemented tells you about the code. Grouping them by which of the two jobs they check tells you something you can use.
+Grouped by the two jobs rather than by where they happen to be implemented, because the grouping is what tells you which ones a card can touch.
 
-Voicing:
+Voicing, from the shipped card's POSTPROC patterns:
 
-- `clause_symmetry` — comma- or semicolon-joined clauses of near-equal length that repeat a content word across the joint, the balanced two-beat.
-- `apology` — the reply performs contrition instead of stating the correction and moving on.
-- `self_postmortem` — the reply turns to account for its own errors, which is a story the reader did not ask for.
-- `announced_length` — the reply announces its own length rather than cutting it.
-- `cross_turn_repeat` — a turn of phrase this reply shares with several earlier ones in the same session; the only rule that reads the window rather than the reply, so it cannot fire until a session has a history.
+- **flip** (warn) — the not-A-but-B flip in its common surface forms, including not-only-but-also. The Economist measured this family across 55,940 sentences on 2026-07-30 and put Claude at the top of it among every writer in the study, human or machine.
+- **load_bearing** (warn) — reflexive intensifier for important or central, at 25.6 per 1k the heaviest measured lean in this register; say what the thing carries instead.
+- **worth_noting** (warn) — announces that something deserves attention instead of letting it earn the attention, at 6.5 per 1k.
 
-Structure:
+Voicing, where a pattern was not enough:
 
-- `labelled_opening` — a prose paragraph opening on a short verbless fragment that the rest of it unpacks, with an ordinal counting as the label. List blocks and paragraphs under twelve words are skipped, and so is the bolded form: the card dropped its `bold_label` rule in July 2026 after blind readers named bold and bullets as something they wanted, so an opener written as a bold label is deliberately unpoliced.
-- `paragraph_uniformity` — four or more prose paragraphs whose lengths have a coefficient of variation below `--min-cv`.
-- `ask_not_last` (interactive) — a question or request for the reader sitting in an earlier block while the reply carries on past it.
-- `dangling_end` (interactive) — an open problem named in the closing blocks with no question, offer, or explicit all-clear anywhere, leaving "continue" nothing to refer to.
-- `buried_decision` (interactive) — an open problem landing after the last question or offer, burying the decision point above it.
-- `forked_end` (interactive) — two or more things to act on in the closing blocks with nothing marking which comes first, so answering "continue" means picking one. Sentences opening on "or", questions inside list items and table cells, and bare deference tags like "your call" are read as continuing the decision above rather than adding another.
-- `unverified_done` (loop) — says the work is done with nothing on the page that could have shown it, no command, no count, no file.
-- `loop_ask` (loop) — an unattended run ends by asking, so the answer lands in a log and the next iteration reads the question as an instruction to itself.
+- **clause_symmetry** — comma- or semicolon-joined clauses of near-equal length that repeat a content word across the joint, the balanced two-beat.
+- **apology** — the reply performs contrition instead of stating the correction and moving on.
+- **self_postmortem** — the reply turns to account for its own errors, which is a story the reader did not ask for.
+- **announced_length** — the reply announces its own length rather than cutting it.
+- **cross_turn_repeat** — a turn of phrase this reply shares with several earlier ones in the same session; the only rule that reads the window rather than the reply, so it cannot fire until a session has a history.
 
-Read the two lists together and the implementation explains itself. A POSTPROC pattern matches a span of text, which means it can only ever describe wording, so every voicing rule that needed more than a pattern had to be written in Go alongside the structure rules. That is why the shipped card carries 0 POSTPROC rules of its own. Anyone arriving here expecting a long list of banned phrases should know that the list lives in basanite, on purpose.
+Structure, all of it compiled in:
 
-The structure rules do vary in one place, and it is not by card — it is by who is going to read the turn. The interactive lane is chosen for any turn that is not a loop turn, because somebody is waiting at a terminal and the ending is where they decide what happens next. The loop lane is chosen when the prompt that opened the turn was `/loop` or `/goal`, or the sentinel a dynamic-pacing loop sends itself, and it drops `ask_not_last`, `forked_end`, `dangling_end` and `buried_decision` while adding `unverified_done` and `loop_ask`. Nobody is reading yet. A report that correctly names what it left open and then stops would fail three of the dropped rules, and a question inside it lands in a log where the next iteration reads it as an instruction to itself. What replaces them is the claim check: a report saying the work is done has to say what it ran.
+- **labelled_opening** — a prose paragraph opening on a short verbless fragment that the rest of it unpacks, with an ordinal counting as the label. List blocks and paragraphs under twelve words are skipped, and so is the bolded form: the card dropped its bold_label rule in July 2026 after blind readers named bold and bullets as something they wanted, so an opener written as a bold label is deliberately unpoliced.
+- **paragraph_uniformity** — four or more prose paragraphs whose lengths have a coefficient of variation below `--min-cv`.
+- **ask_not_last** — a question or request for the reader sitting in an earlier block while the reply carries on past it.
+- **dangling_end** — an open problem named in the closing blocks with no question, offer, or explicit all-clear anywhere, leaving "continue" nothing to refer to.
+- **buried_decision** — an open problem landing after the last question or offer, burying the decision point above it.
+- **forked_end** — two or more things to act on in the closing blocks with nothing marking which comes first, so answering "continue" means picking one. Sentences opening on "or", questions inside list items and table cells, and bare deference tags like "your call" are read as continuing the decision above rather than adding another.
+- **unverified_done** — says the work is done with nothing on the page that could have shown it: no command, no count, no file.
+- **loop_ask** — an unattended run ends by asking, so the answer lands in a log and the next iteration reads the question as an instruction to itself.
+
+That split says something usable about the implementation. A POSTPROC pattern matches a span of text, so it can only ever describe wording, and every voicing rule that needed more than a span had to be written in Go beside the structure rules. Which is why the shipped card carries three POSTPROC rules and no more. If you came here expecting a long list of banned phrases, that list lives in another tool on purpose, and the previous section names it.
+
+The structure rules do vary in exactly one way, and it has nothing to do with which card is loaded. It is about who is going to read the turn. The interactive lane runs for any turn that is not a loop turn, because somebody is waiting at a terminal and the ending is where they decide what happens next. The loop lane runs when the prompt that opened the turn was `/loop` or `/goal`, or the sentinel a dynamic-pacing loop sends itself. There, `ask_not_last`, `forked_end`, `dangling_end` and `buried_decision` are dropped and `unverified_done` and `loop_ask` take their place, because nobody is reading yet: a report that correctly names what it left open and stops would fail three of the dropped rules, and a question in it lands in a log where the next iteration reads it as an instruction to itself. What replaces them is the claim check. A report saying the work is done has to say what it ran.
 
 ## Flags
 
-| flag | default | does |
+| Flag | Default | What it does |
 | --- | --- | --- |
 | `--ab` | `false` | rotate refresher windows through the arms and record which arm each turn was written under |
 | `--ab-arms` | (empty) | comma-separated arms to rotate through, implying -ab (default inject,hold; positive is the third) |
@@ -126,36 +130,42 @@ The structure rules do vary in one place, and it is not by card — it is by who
 | `--author-docs` | `false` | print a prompt for writing this repo's docs: the card, the introspected facts, the sections |
 | `--backfill` | (empty) | score every assistant turn in this transcript and exit |
 | `--block` | `false` | exit 2 on a violation whose action is reject (default warn-only) |
-| `--card` | (empty) | name of an installed card to write in, from the cards directory; also $COPE_CARD |
+| `--card` | (empty) | name of an installed card to write in, from the cards directory; also `$COPE_CARD` |
 | `--cards` | `false` | list the installed cards with the aim each one states, and exit |
 | `--check` | (empty) | score a prose file against the card and exit; - reads stdin |
 | `--describe` | `false` | print the card's voice as a target to recognise: the aim and the register, without the machinery |
 | `--display` | `false` | MessageDisplay entry: rewrite what the reader sees, leaving the transcript alone |
-| `--display-preview` | `false` | read prose on stdin and print it as --display would rewrite it |
-| `--dry-run` | `false` | with --setup, print what would change and write nothing |
+| `--display-preview` | `false` | read prose on stdin and print it as `--display` would rewrite it |
+| `--dry-run` | `false` | with `--setup`, print what would change and write nothing |
 | `--inject` | `false` | print the card as prompt text for a SessionStart hook |
 | `--log` | `$HOME/.local/state/cope/violations.jsonl` | append violations here; empty disables |
 | `--min-cv` | `0.35` | flag paragraph-length coefficient of variation below this |
-| `--output-style` | `false` | write the card to ~/.claude/output-styles as a Claude Code output style, which puts it in the system prompt rather than in one turn-zero message |
-| `--output-style-dir` | (empty) | directory to write the output style into (default ~/.claude/output-styles) |
+| `--output-style` | `false` | write the card to `~/.claude/output-styles` as a Claude Code output style, which puts it in the system prompt rather than in one turn-zero message |
+| `--output-style-dir` | (empty) | directory to write the output style into (default `~/.claude/output-styles`) |
 | `--refresh-every` | `30m0s` | minimum age of the last card or refresher injection before the refresher fires |
 | `--refresher` | `false` | UserPromptSubmit entry: inject the compact reminder once the last injection has aged |
 | `--render-arm` | (empty) | print the mid-session reminder one arm would inject, and exit |
-| `--render-for` | (empty) | comma-separated rule ids to render -render-arm against |
-| `--render-lane` | (empty) | render -render-arm as the given lane sees it: interactive (default) or loop |
-| `--rules` | (empty) | read the card from this .effigy or .json file instead of the one built into the binary |
+| `--render-for` | (empty) | comma-separated rule ids to render `-render-arm` against |
+| `--render-lane` | (empty) | render `-render-arm` as the given lane sees it: interactive (default) or loop |
+| `--rules` | (empty) | read the card from this `.effigy` or `.json` file instead of the one built into the binary |
 | `--setup` | `false` | emit the output style and wire the hooks, then print the one step left |
 | `--version` | `false` | print version and exit |
 
 ## What lands on disk
 
-Three files, all mode 0600, all under `$XDG_STATE_HOME/cope`. `violations.jsonl` holds one JSON record per violation, carrying the matched text and about 70 characters either side, which is to say the log quotes your replies back at you. `refresher-<session-id>` is an empty file whose mtime is the refresher clock. `session-<session-id>.json` is the rolling record the mid-session injection is chosen from: turn count, characters, and which rules fired over a 20-turn window, holding no prose at all, only rule names and counts.
+Three files, all `0600`:
+
+- `$XDG_STATE_HOME/cope/violations.jsonl` — one JSON record per violation, carrying the matched text and about 70 characters either side.
+- `$XDG_STATE_HOME/cope/refresher-<session-id>` — an empty file whose mtime is the refresher clock.
+- `$XDG_STATE_HOME/cope/session-<session-id>.json` — the rolling record the mid-session injection is chosen from: turn count, characters, and which rules fired over a 20-turn window. No prose is stored, only rule names and counts.
+
+The middle two hold nothing you would mind. The first one quotes your replies back at you.
 
 ## Editing the card
 
-effigy owns the `.effigy` grammar, `make rules` regenerates `card/rules.json` from the card, and `make check-rules` is what CI runs so that the enforced rules and the injected rules cannot quietly drift apart.
+effigy owns the `.effigy` grammar. `make rules` regenerates `card/rules.json` from the card, and `make check-rules` is what CI runs, so the rules being enforced and the rules being injected cannot drift apart quietly.
 
-There is a NEVER budget of 10, and anything over it is reported at load rather than dropped in silence. The budget is charged against each injection separately and not against the card file, because SessionStart prints the always-on rules while the refresher prints the evidence-gated ones and no code path renders their union — so a card may hold more NEVER rules in total than the budget allows and be perfectly healthy. The authoritative list of rules that really are discarded unrendered is `never_rules_over_budget`, and on a healthy card it is empty.
+There is a NEVER budget of 10, and anything over it is reported at load rather than dropped silently — a rule that vanished without a word would be worse than one that never existed. The budget is charged against each injection separately and not against the card file, because the SessionStart text prints the always-on rules, the refresher prints the evidence-gated ones, and no code path anywhere renders their union. A card can therefore hold more NEVER rules in total than the budget and still be perfectly healthy.
 
 Both card-authored forms go in the card header, one per line:
 
@@ -164,21 +174,30 @@ Both card-authored forms go in the card header, one per line:
 @shape <id>: <selector> <predicate> — <why>
 ```
 
-The `@shape` vocabulary is small and worth having in front of you exactly as it stands. Selectors: `first paragraph`, `last paragraph`, `every paragraph`, `some paragraph`, `reply`. Predicates: `words <= N`, `words >= N`, `sentences <= N`, `sentences >= N`, `asks`, `does not ask`.
+The `@shape` vocabulary is exactly this and no more:
 
-A rule id for `@gate` has to be one the gate actually has, and an id for `@shape` must not collide with one, and a wrong id in either is reported at load rather than ignored. The reason after the dash is required in both forms, since a rule a card wrote and a rule a card refused are equally unreviewable without one. A declined rule still runs and only this card's score drops it, so a backfill still tells you what it would have caught, and a `@shape` violation is reported in the card's own words rather than in any sentence the binary supplies.
+- selectors: `first paragraph`, `last paragraph`, `every paragraph`, `some paragraph`, `reply`
+- predicates: `words <= N`, `words >= N`, `sentences <= N`, `sentences >= N`, `asks`, `does not ask`
+
+For `@gate` the id has to be one the gate already has; for `@shape` it must not collide with one, and a wrong id in either is reported at load rather than ignored. The reason after the dash is required in both, because a rule a card wrote and a rule a card refused are equally unreviewable without one. `card/demo/handoff.effigy` asserts `readable_cold` — `last paragraph words <= 60` — because its peak asks the reader to re-enter cold and read the last block only, and no built-in rule checks whether that block can be read that way. The 60 is measured: across 43,155 assistant replies the closing block runs 33 words at the median and 56 at p90.
+
+A declined rule is not switched off, either. It still runs, and only this card's score drops it, so a backfill still reports everything it would have caught. And a `@shape` violation comes back in the card's own words rather than in any sentence the binary supplies.
 
 ## Calibrating
 
-`cope-gate --backfill` scores a whole session transcript at once, and it is how these rules were chosen in the first place. `tools/backfill-sweep.sh` runs it over the N largest transcripts found anywhere under `~/.claude/projects`, which is emphatically not the same thing as one per project. The number worth watching as you tune is hits per character, not the share of turns hit, because that second number mostly tracks how long the turns were. MEASUREMENTS.md has the rates.
+`cope-gate --backfill` scores a whole session transcript at once, and it is how these rules were chosen in the first place. `tools/backfill-sweep.sh` runs it over the N largest transcripts found anywhere under `~/.claude/projects`, which is not the same thing as one per project, and reading it as one per project will flatter or damn whichever project happens to have the long sessions.
+
+The number worth watching is hits per character. The share of turns hit looks like the more honest metric and is not, because it mostly tracks how long the turns were. [MEASUREMENTS.md](MEASUREMENTS.md) has the rates.
 
 ## Known limits
 
-`labelled_opening` is not a tagger and should not be mistaken for one. `ask_not_last` says nothing whatsoever about the ordering of several asks among themselves.
+The axis split organises the limits as neatly as it organises the rules.
 
-The hit rate is roughly four fifths structure, and the A/B run found that four fifths tracks what a reply was for rather than how it was written — which makes it a description of the output and not a judgement of it. The judgement lives in the discrimination test, and that test covers voicing only.
+On the structural side, `labelled_opening` is not a tagger: it counts a short verbless opener and an ordinal, and cannot tell a label from a fragment that had every right to be there. `ask_not_last` says nothing whatever about the order of several asks, only that one of them is stranded above the rest of the reply. And the hit rate is roughly four fifths structure, which sounds like a verdict on how the model writes until you look at the A/B run: that four fifths tracks what a reply was for. It is a description of the output, not a judgement of it. The judgement lives in the discrimination test, and that test covers voicing only.
 
-The largest limit is the one named under **The two things it checks**, and it is worth stating as it now stands rather than as it stood. A card can decline a built-in rule and can write one of its own, and the vocabulary it writes in counts words and sentences and asks whether a block poses a question. So the compiled rules remain the only home a check like `clause_symmetry` can have, and a card wanting something outside both that vocabulary and a POSTPROC regex still has nowhere at all to put it. Both directions are also the card marking its own homework, since a decline lowers that card's score and an assertion raises it; both are worth reading with the reason attached, which is precisely why the syntax refuses to accept one without a reason. MEASUREMENTS.md is where the evidence for all of this sits.
+The largest limit is the one "The two things it checks" already named, and it has moved recently enough to be worth stating as it now stands rather than as it stood. A card can decline a built-in rule and can write one of its own. The vocabulary it writes in counts words and sentences and asks whether a block poses a question, so the compiled rules remain the only place a check like `clause_symmetry` can live, and a card wanting something outside both that vocabulary and a POSTPROC regex still has nowhere to put it.
+
+There is a second thing to hold about both directions, and it is not a defect so much as a condition of the design. A card that declines a rule lowers its own score, and a card that asserts one raises it. Both are the card marking its own homework, both are only readable with the reason attached, and that is precisely why the syntax will not accept one without it. [MEASUREMENTS.md](MEASUREMENTS.md) has the rest.
 
 ## Layout
 
@@ -187,7 +206,7 @@ The largest limit is the one named under **The two things it checks**, and it is
 - `card/demo/` — other cards, each written to sound like something else
 - `cmd/cope-gate/` — the hook binary
 - `internal/scan/` — the structure rules, the card's regex rules, and the card renderer
-- `internal/effigy/` — the .effigy reader, so a card is usable as written
+- `internal/effigy/` — the `.effigy` reader, so a card is usable as written
 - `internal/transcript/` — Claude Code JSONL reader, and which lane a turn was written in
 - `replay/` — the blind-pairs and discrimination harnesses, and their own README
 - `demo/` — this README written again under each demo card

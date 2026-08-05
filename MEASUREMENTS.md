@@ -903,3 +903,34 @@ rules it wants — or supply its own — turns this from a confound into an arm:
 the same 60 prompts with lecturer scored under lecturer's rules and under the
 shipped card's, and the difference is the thing being argued about. Until then
 every card is measured against one card's idea of how a reply should end.
+
+## Where the card sits beats what it says (2026-08-03)
+
+Every run above this line came from `tools/generate_readme.py`, which sends the
+card as the entire system prompt. Deployed, cope did not do that: the card went
+through a `SessionStart` hook — one message at turn zero, which the conversation
+buries under everything written after it.
+
+27 samples, 22 usable after five empty responses, counting bolded-label
+paragraphs per reply against a card that asks for a bolded label on every
+paragraph.
+
+| where the card sat | bolded labels per reply |
+| --- | --- |
+| the system prompt | 9.4 |
+| the system prompt, next to a global CLAUDE.md | 6.3 |
+| a global CLAUDE.md, no card | 1.0 |
+
+63–86% of the effect survives sitting next to other instructions, so what was
+killing the hook delivery was position and not interference. Claude Code's
+documentation says an output style's instructions are added to the system prompt
+and that the harness re-reminds the model of them during the conversation; a
+turn-zero message gets neither.
+
+Run through the hook, the same card — bolded label on every paragraph, emoji on
+every heading — produced prose indistinguishable from no card at all.
+
+**What this does not say.** A bolded-label count is a compliance proxy, picked
+because it is countable and unambiguous, not because markup is what a card is
+for. It says an instruction arrived. It says nothing about whether the writing
+got better, which is what the discrimination runs above are for.

@@ -28,6 +28,7 @@ CARDS = [
     ("card/demo/precise.effigy", "demo/README.precise.md"),
     ("card/demo/caveman.effigy", "demo/README.caveman.md"),
     ("card/demo/lecturer.effigy", "demo/README.lecturer.md"),
+    ("card/demo/fieldguide.effigy", "demo/README.fieldguide.md"),
 ]
 
 EMOJI = re.compile(

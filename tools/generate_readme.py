@@ -121,8 +121,10 @@ def main():
         "cache_control": {"type": "ephemeral"},
     }]
     # The prompt needs to know whether this render IS the front page, because
-    # the instruction to point at the maximal demo becomes a link to the page
-    # you are standing on the moment the front page is written from that card.
+    # the instruction to point a reader at the demo set becomes a link to the
+    # page they are standing on for whichever card the front page is written
+    # from. Detected by target path rather than by card, so moving the front
+    # page to a different card needs no change here.
     front_page = args.target.resolve() == DEFAULT_TARGET.resolve()
     where = ("This render IS the repository front page — the file a visitor sees "
              "first on GitHub." if front_page else

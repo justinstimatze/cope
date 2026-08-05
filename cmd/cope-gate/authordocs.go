@@ -24,6 +24,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/justinstimatze/cope/card"
 	"github.com/justinstimatze/cope/internal/scan"
 )
 
@@ -42,7 +43,14 @@ type docsFacts struct {
 	Axes          []axisFact       `json:"axes"`
 	Lanes         []laneFact       `json:"lanes"`
 	RegexRules    []ruleFact       `json:"regex_rules"`
-	ShapeRules    []shapeFact      `json:"shape_rules"`
+
+	// ShippedRegexRules is the same list for the card cope ships. Both are
+	// here for the reason both counts are: a page written under a demo card
+	// was documenting that card's POSTPROC rules as cope's, so the front page
+	// listed two rules nobody installs and omitted the three everybody gets.
+	ShippedRegexRules []ruleFact `json:"regex_rules_in_shipped_card"`
+
+	ShapeRules []shapeFact `json:"shape_rules"`
 	Hooks         []hookFact       `json:"hooks"`
 	SettingsJSON  string           `json:"settings_json_block"`
 	StyleInstall  styleInstallFact `json:"output_style_install"`
@@ -92,6 +100,14 @@ type composition struct {
 	Quirks int `json:"quirks"`
 	Traits int `json:"traits"`
 	Regex  int `json:"postproc_rules"`
+
+	// ShippedRegex is the same count for the card cope ships, which is a
+	// different number whenever a demo card is loaded. Both are here because
+	// the two get confused: a page written under a demo card was stating that
+	// card's POSTPROC count and attributing it to the shipped one, so every
+	// demo page claimed cope ships zero regex rules and the front page —
+	// rendered from the maximal card — claimed one. It ships three.
+	ShippedRegex int `json:"postproc_rules_in_shipped_card"`
 }
 
 type sizes struct {
@@ -251,6 +267,7 @@ func collectFacts(c *scan.Card, fs *flag.FlagSet) docsFacts {
 	// wrong forever after. A generated README can restate a card count on the
 	// next `make readme`; a version taken from the working tree is stale before
 	// the commit that adds it lands.
+	shipped := shippedRegexRules()
 	f := docsFacts{
 		Module:     "github.com/justinstimatze/cope",
 		NameOrigin: "a cope is the upper half of a foundry mould — the half carrying the shape being cast into",
@@ -259,7 +276,9 @@ func collectFacts(c *scan.Card, fs *flag.FlagSet) docsFacts {
 		Composition: composition{
 			Never: len(c.Never), Wrong: len(c.Wrong), Mes: len(c.Mes), Tests: len(c.Tests),
 			Quirks: len(c.Quirks), Traits: len(c.Traits), Regex: len(c.Rules),
+			ShippedRegex: len(shipped),
 		},
+		ShippedRegexRules: shipped,
 		RenderedCard: sizes{
 			Card:      len(c.Render()),
 			Refresher: len(c.RenderRefresher()),
@@ -377,13 +396,15 @@ for the reader to act on so a rule about replies has something to match.
    a reader who follows the link understands the tool, and a reader who does not
    is taking prose about registers on trust. Link it as demo/README.md. Mention
    the maximal one by name — demo/README.claude-maximal.md, written from a card
-   that instructs every tic this model is measured to have — because it is the
-   one that makes the point in a single glance.
-   ONE EXCEPTION, only when the user message says this render IS the front page
-   AND the card you are writing under is claude_maximal: this page is then that
-   maximal render, so do not link a reader to it — point instead at
-   demo/README.claude-voice.md, the same page in the register cope actually
-   ships, and say that is the one to read if this one is hard going.
+   that instructs every tic this model is measured to have — as the one that
+   makes the point in a single glance, and say in the same breath that it is
+   deliberately hard going. A reader who clicks it forewarned finds it funny;
+   the same reader landing in it unwarned finds the thing they came here to get
+   away from. Name it, do not recommend it.
+   ONE EXCEPTION, only when the user message says this render IS the front page:
+   the front page is written from the fieldguide card, so demo/README.fieldguide.md
+   is this page under another path. Do not send a reader to it. Every other link
+   above stands, the maximal one included.
    Write nothing anywhere on that page about the voice being deliberate, chosen,
    instructed, or a demonstration. No italic note above the title, no aside, no
    footer. The page is the joke and a joke does not introduce itself; a reader
@@ -412,20 +433,37 @@ for the reader to act on so a rule about replies has something to match.
    in one sentence, without apology and without calling it a roadmap. Do not put
    a rate in this section. MEASUREMENTS.md has the run and the reasons its
    numbers do not carry more than that.
-3. The problem, and give it one failure from each axis. Instruction alone does
-   not fix the phrasing: a global CLAUDE.md banning the "not A, it's B" flip is
-   read every turn, and the flip still appeared twice in the session that built
-   this, while the ban was the topic. Naming a surface form pushes the move into
-   a variant. That is the voicing side. The structural side is a different
+3. The problem, in three parts and in this order: where an instruction sits,
+   what an instruction can say, and the failure no instruction reaches. The
+   first is the largest and most readers arrive holding it backwards, so it
+   leads.
+   Where it sits. A reader who has edited a global CLAUDE.md and watched it not
+   stick almost certainly believes that file is the system prompt. It is not. It
+   arrives as one message attached to the first turn, and the conversation
+   buries it under everything written after. An output style is in the system
+   prompt itself, which the harness re-reminds the model of as the conversation
+   runs. Say that moving one card between those two places, without changing a
+   word of it, is most of why cope works. Say it was measured, point at
+   MEASUREMENTS.md, and put no counts on this page: a reader here wants to know
+   the thing works, and the one who wants the run will follow the link. Do not
+   name the delivery that lost — section 4 gives it one clause, and a reader
+   must not leave this page wiring it.
+   What an instruction can say. Instruction alone does not fix the phrasing: a
+   global CLAUDE.md banning the "not A, it's B" flip is read every turn, and the
+   flip still appeared twice in the session that built this, while the ban was
+   the topic. Naming a surface form pushes the move into a variant. That is the
+   voicing side.
+   The failure no instruction reaches. The structural side is a different
    complaint with a different cause — an ending that leaves the reader nothing
    to answer costs a whole round trip, and it is not a phrasing habit an
-   instruction could have banned. Close by saying the flip is an anecdote about
-   one rule and naming what the claim actually rests on: the blind
-   discrimination test, where a reader shown only a voice's own description of
-   itself picks which of two replies was written under it. Send them to
-   MEASUREMENTS.md for the rate and the caveats. Do not cite the blind
-   preference runs here — both arms of those were written under a card, so they
-   compare two ways of writing well and cannot see a voice being swapped.
+   instruction could have banned.
+   Close by saying the flip is an anecdote about one rule and naming what the
+   claim actually rests on: the blind discrimination test, where a reader shown
+   only a voice's own description of itself picks which of two replies was
+   written under it. Send them to MEASUREMENTS.md for the rate and the caveats.
+   Do not cite the blind preference runs here — both sides of those were written
+   under a card, so they compare two ways of writing well and cannot see a voice
+   being swapped.
 4. Install, in the order somebody actually does it, and the order matters more
    here than anywhere else on the page. Two commands and one menu choice, from
    facts.output_style_install: the go install line, then setup, then the
@@ -502,13 +540,27 @@ for the reader to act on so a rule about replies has something to match.
    knows neither project should still follow it.
 8. The rules, grouped by facts.axes rather than by where they are implemented.
    Two lists: the voicing rules and the structure rules, each rule stated from
-   facts.shape_rules and facts.regex_rules verbatim in substance — do not infer
-   what a rule catches from its name. Then say what the grouping implies about
+   facts.shape_rules and facts.regex_rules_in_shipped_card verbatim in
+   substance — do not infer what a rule catches from its name.
+   Take the POSTPROC rules from regex_rules_in_shipped_card and NOT from
+   regex_rules. This section documents what a reader installs, and regex_rules
+   holds the rules of whichever card THIS page is written from, which under any
+   card in demo/ is a different set. Listing that set here is how the front
+   page came to document two rules nobody has while omitting the three
+   everybody gets. If the page is written under a card carrying POSTPROC rules
+   of its own and they are worth a mention, name them as that card's and keep
+   them out of the list. Then say what the grouping implies about
    the implementation, which is the part a reader can use: a POSTPROC pattern
    matches a span of text, so it can only ever describe wording, and every
    voicing rule that needed more than a pattern had to be written in Go beside
-   the structure rules. That is why the card ships only
-   facts.card_composition.postproc_rules of them. Use the basanite boundary in
+   the structure rules. That is why cope's shipped card carries only
+   facts.card_composition.postproc_rules_in_shipped_card of them. Take that
+   number from that field and from nowhere else: postproc_rules alongside it
+   counts the card THIS page is written from, which is a different card and a
+   different number on every page under demo/, and attributing that one to the
+   shipped card is how every demo page came to state a count cope does not
+   have. If the two differ and the difference is worth a clause, say whose is
+   whose; otherwise state the shipped number and leave the other out. Use the basanite boundary in
    facts.related_projects here: a reader who expects a long list of banned
    phrases should learn that the list lives in another tool on purpose. Close
    with facts.lanes, which is the one place the structure rules do vary — not by
@@ -746,6 +798,25 @@ func authoredBy(c *scan.Card) authorFact {
 func mustShapes(c *scan.Card) []scan.ShapeRule {
 	r, _ := c.Shapes()
 	return r
+}
+
+// shippedRegexRules returns the POSTPROC rules on the embedded card, whichever
+// card --rules loaded. It returns nil rather than failing when the embedded
+// card will not parse, because a docs prompt that refuses to print is worse
+// than one field missing from it, and internal/scan's tests already fail the
+// build in that case.
+func shippedRegexRules() []ruleFact {
+	c, _, err := scan.ParseCard(card.RulesJSON)
+	if err != nil {
+		return nil
+	}
+	var out []ruleFact
+	for _, r := range c.Rules {
+		// Patterns stay out here for the reason they stay out of RegexRules:
+		// showing the regex invites writing around it.
+		out = append(out, ruleFact{r.ID, r.Action, r.Why})
+	}
+	return out
 }
 
 // mustGates drops the validation error, which ParseCard has already reported to

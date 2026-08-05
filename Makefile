@@ -161,12 +161,28 @@ PYTHON ?= $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,python3)
 #   make readme CARD=card/demo/precise.effigy TARGET=demo/README.precise.md
 #
 # With no CARD, this writes the FRONT PAGE, and the front page is deliberately
-# the maximal card: a README written in the register cope exists to fix states
-# the problem better than a paragraph about it can. generate_readme.py tells the
-# prompt which of the two it is writing, because the instruction to send a
-# reader to the maximal demo becomes a link to the page they are standing on the
-# moment the front page is that card. demo/README.claude-voice.md is the same
-# page in the shipped register and is what a reader who wants prose goes to.
+# a demo card rather than the shipped one: a reader has to be able to see that a
+# card wrote the page, and a page in the shipped register cannot show that.
+#
+# It was the maximal card until 2026-08-04, on the argument that a README
+# written in the register cope exists to fix states the problem better than a
+# paragraph about it can. It does, and it costs too much: the people who arrive
+# here arrived to get away from exactly that prose, and the front page served
+# them a full page of it before they had any reason to trust the joke. The
+# maximal render stays under demo/ and the front page names it, so the reader
+# meets it by clicking rather than by landing.
+#
+# fieldguide replaced it. It is visibly card-shaped — entries open on the name
+# of the thing, lookalikes get a sentence beginning "Compare", an unmeasured
+# claim reads "Not recorded" — so it still shows a card at work, and none of
+# those moves hurt to read. caveman was the other candidate and was dropped:
+# there is a separate project of that name by another author, cited in the
+# README, and wearing a neighbour's register on the front door reads as taking
+# it.
+#
+# generate_readme.py tells the prompt which of the two it is writing, because
+# the instruction to send a reader to the demo set becomes a link to the page
+# they are standing on the moment the front page is one of those cards.
 readme: build
 	@$(PYTHON) -c 'import anthropic' 2>/dev/null || { \
 	  echo "no anthropic package on $(PYTHON)"; \
@@ -175,7 +191,7 @@ readme: build
 ifdef CARD
 	$(PYTHON) tools/generate_readme.py --rules $(CARD) --target $(TARGET) --rounds $(or $(ROUNDS),3)
 else
-	$(PYTHON) tools/generate_readme.py --rules card/demo/claude_maximal.effigy --target README.md --rounds 0
+	$(PYTHON) tools/generate_readme.py --rules card/demo/fieldguide.effigy --target README.md --rounds 0
 endif
 
 # demo writes the README again from every card in card/demo/ and scores them
@@ -183,7 +199,16 @@ endif
 # gate's verdict on each. caveman cuts an answer by removing things;
 # precise cuts it by replacing them; lecturer does not cut at all and differs
 # from the shipped card only in register, which is what makes it the one usable
-# as a discrimination rival.
+# as a discrimination rival. fieldguide is also the front page, so it renders
+# twice, to README.md and to demo/README.fieldguide.md.
+#
+# fieldguide scores high in the check below and the number is not what it looks
+# like. It declines labelled_opening with @gate, because every entry opens on
+# the name of the thing — and the check runs without --rules, so all seven pages
+# are scored against the SHIPPED card's rules, which still counts the rule this
+# card refused. That is the documented behaviour: a declined rule keeps running
+# and only its own card's score drops it. Under its own rules the page scores
+# lowest of the set.
 #
 # Each card goes to the gate as .effigy, which internal/effigy reads directly.
 # This ran through tools/card2json.py until 2026-08-02 and so needed an effigy
@@ -200,6 +225,7 @@ demo: build
 	  "card/demo/precise.effigy:demo/README.precise.md" \
 	  "card/demo/caveman.effigy:demo/README.caveman.md" \
 	  "card/demo/lecturer.effigy:demo/README.lecturer.md" \
+	  "card/demo/fieldguide.effigy:demo/README.fieldguide.md" \
 	  "card/demo/claude_maximal.effigy:demo/README.claude-maximal.md" \
 	  "card/claude_voice.effigy:demo/README.claude-voice.md" ; do \
 	  card=$${spec%%:*}; target=$${spec##*:}; \
