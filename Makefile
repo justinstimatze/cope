@@ -191,7 +191,7 @@ readme: build
 ifdef CARD
 	$(PYTHON) tools/generate_readme.py --rules $(CARD) --target $(TARGET) --rounds $(or $(ROUNDS),3)
 else
-	$(PYTHON) tools/generate_readme.py --rules card/demo/fieldguide.effigy --target README.md --rounds 0
+	$(PYTHON) tools/generate_readme.py --rules card/demo/fieldguide.effigy --target README.md --rounds $(or $(ROUNDS),3)
 endif
 
 # demo writes the README again from every card in card/demo/ and scores them

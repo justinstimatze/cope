@@ -59,9 +59,19 @@ def run_gate(*args):
     return proc.stdout, proc.returncode
 
 
-def check(target):
-    """Score the file. Returns the gate's own report, or '' when clean."""
-    out, _ = run_gate("--check", str(target), "--log", "")
+def check(target, rules=""):
+    """Score the file against the card that wrote it.
+
+    Passing --rules matters and was missing: without it the gate scores every
+    page against the SHIPPED card, so a revision round on a page written from a
+    demo card pushes it toward rules that card declined. The front page declines
+    labelled_opening by construction and would have had 35 deliberate hits
+    "fixed" out of it.
+    """
+    args = ["--check", str(target), "--log", ""]
+    if rules:
+        args = ["--rules", rules] + args
+    out, _ = run_gate(*args)
     return "" if ": clean" in out else out
 
 
@@ -166,7 +176,7 @@ def main():
                      f"{args.target}")
 
         args.target.write_text(draft + "\n")
-        report = check(args.target)
+        report = check(args.target, args.rules)
         if not report:
             print(f"gate is clean after round {round_no} → {args.target}", file=sys.stderr)
             return

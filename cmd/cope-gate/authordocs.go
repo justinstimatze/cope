@@ -172,6 +172,14 @@ const settingsJSON = `{
 // cannot invent a command or a menu path for the one section where being wrong
 // costs a reader the whole tool.
 type styleInstallFact struct {
+	// Block is the copyable install, given as a literal for the same reason
+	// settingsJSON is: prose instructions to name the menu entry landed on
+	// three renders out of seven and missed the front page, and a reader who
+	// cannot find the entry has a style selected and nothing changed. A fact
+	// marked reproduce-verbatim is the only thing in this prompt that survives
+	// every render.
+	Block string `json:"copyable_install_block"`
+
 	Setup  string `json:"setup"`
 	Emit   string `json:"emit_by_hand"`
 	Select string `json:"select"`
@@ -297,9 +305,11 @@ func collectFacts(c *scan.Card, fs *flag.FlagSet) docsFacts {
 		},
 		SettingsJSON: settingsJSON,
 		StyleInstall: styleInstallFact{
+			Block: fmt.Sprintf("go install %s/cmd/cope-gate@latest\ncope-gate --setup\n# then: /config -> Output style -> %s",
+				"github.com/justinstimatze/cope", shippedStyleName()),
 			Setup:  "cope-gate --setup does the whole install: emits the output style, wires the two hooks into ~/.claude/settings.json with absolute paths, and prints the one step left. It backs the settings file up first, adds only what is missing so a second run changes nothing, leaves every other key alone including other tools' hooks on the same events, and refuses to touch a settings file that does not parse. --setup --dry-run prints what it would change and writes nothing",
 			Emit:   "cope-gate --output-style writes the loaded card to ~/.claude/output-styles/<card>.md, and COPE_CARD=<name> in front of it emits a different one",
-			Select: "pick it under /config -> Output style. The standalone /output-style command was removed in Claude Code v2.1.91, so /config is the way; the same thing can be set as \"outputStyle\" in .claude/settings.local.json",
+			Select: fmt.Sprintf("pick it under /config -> Output style. The entry to look for is named %q, which is the shipped card's id and not the word cope — say the name, because a reader scanning that menu for something called cope will not find it. The standalone /output-style command was removed in Claude Code v2.1.91, so /config is the way; the same thing can be set as \"outputStyle\": %q in .claude/settings.local.json", shippedStyleName(), shippedStyleName()),
 			Timing: "a style is read once at session start, so a new selection or a re-emitted card applies at the next session or after /clear",
 			Why:    "an output style goes at the end of the system prompt and the harness re-reminds the model of it during the conversation, which is why the card lands here and did not through the hook",
 		},
@@ -498,8 +508,15 @@ for the reader to act on so a rule about replies has something to match.
    being swapped.
 4. Install, in the order somebody actually does it, and the order matters more
    here than anywhere else on the page. Two commands and one menu choice, from
-   facts.output_style_install: the go install line, then setup, then the
-   selection. Lead with those and give them as a copyable block. Keep the prose
+   facts.output_style_install. Open with
+   output_style_install.copyable_install_block, reproduced VERBATIM in a fenced
+   code block — character for character, including the comment line naming the
+   menu entry, which is not decoration: a reader who has just installed
+   something called cope will scan that menu for the word cope, and the entry
+   is the card's id instead. An install that ends with a style selected and
+   nothing changed is the one failure on this page that costs a reader the
+   whole tool. Name the entry again in the prose that follows, from
+   output_style_install.select. Lead with those and give them as a copyable block. Keep the prose
    in that same order afterwards — what the two commands did, and only then the
    menu choice that follows them. Naming the last step before explaining the one
    before it makes a reader who is following along stop and scroll. Say what
@@ -852,6 +869,20 @@ func mustShapes(c *scan.Card) []scan.ShapeRule {
 // card will not parse, because a docs prompt that refuses to print is worse
 // than one field missing from it, and internal/scan's tests already fail the
 // build in that case.
+// shippedStyleName is the output-style entry --setup actually writes, which is
+// the SHIPPED card's id and never the loaded one. The install block took the
+// loaded card's name for one render and the front page — rendered from a demo
+// card — told readers to select an entry --setup does not create. Same fault as
+// the POSTPROC counts: a fact about the product, taken from whichever card
+// happened to be loaded.
+func shippedStyleName() string {
+	c, _, err := scan.ParseCard(card.RulesJSON)
+	if err != nil {
+		return "cope"
+	}
+	return styleName(c)
+}
+
 func shippedRegexRules() []ruleFact {
 	c, _, err := scan.ParseCard(card.RulesJSON)
 	if err != nil {
