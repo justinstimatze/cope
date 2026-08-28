@@ -22,8 +22,14 @@ jobs:
         run: go vet ./...
       # Pinned rather than @latest: an unpinned tool fetches new code on every
       # run, which dependabot cannot see and a release cannot reproduce.
+      #
+      # The pin has to move when the toolchain does, and nothing here says so
+      # until it breaks. go-version is `stable` and floats; 2026.1 could not
+      # read Go 1.26's export data ("version 4 is greater than maximum
+      # supported version 2") and every package failed to import, on a commit
+      # that touched no Go the analyzer had an opinion about.
       - name: staticcheck
-        run: go run honnef.co/go/tools/cmd/staticcheck@2026.1 ./...
+        run: go run honnef.co/go/tools/cmd/staticcheck@2026.2 ./...
       - name: test
         run: go test -race ./...
 
