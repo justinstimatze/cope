@@ -12,6 +12,7 @@ way.
 """
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -56,6 +57,22 @@ def counts(path: Path) -> dict[str, int]:
         ),
         "chars": len(text.encode("utf-8")),
     }
+
+
+def gate_total_rules() -> int:
+    """How many rules the gate can emit at all: the built-ins plus the shipped
+    card's own regex rules.
+
+    Read from --author-docs rather than written down. It was the word "sixteen"
+    in the sentence below, which is a figure a reader can check and nothing
+    would have updated — the same defect this file exists to remove from the
+    tables above it.
+    """
+    out = subprocess.run(
+        [str(GATE), "--author-docs"], capture_output=True, text=True, cwd=REPO
+    ).stdout
+    facts = json.loads(re.search(r"```json\n(.*?)\n```", out, re.S).group(1))
+    return len(facts["shape_rules"]) + facts["card_composition"]["postproc_rules_in_shipped_card"]
 
 
 def rules(page: str) -> list[str]:
@@ -159,7 +176,7 @@ def main() -> None:
     )
     totals = (
         f"Across {len(CARDS)} renders and {total:,} characters, "
-        f"{len(allhits)} of the sixteen rules fired at all: {fired}."
+        f"{len(allhits)} of the {gate_total_rules()} rules fired at all: {fired}."
     )
 
     text = INDEX.read_text(encoding="utf-8")
