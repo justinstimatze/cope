@@ -311,7 +311,7 @@ func collectFacts(c *scan.Card, fs *flag.FlagSet) docsFacts {
 			{"SessionStart", "cope-gate --inject", "prints the card as prompt text. SUPERSEDED by the output style and off by default: it puts the card in one turn-zero message, which Claude Code buries as the conversation grows. Measured 2026-08-03, a card asking for a bolded label on every paragraph and an emoji on every heading produced, through this hook, prose indistinguishable from no card at all. It stays for anyone who wants the old delivery, and it stands down on its own when a cope output style is active"},
 			{"Stop", "cope-gate", "scores the reply just written and appends which rules fired to the session's rolling state, plus one record per violation to the log"},
 			{"UserPromptSubmit", "cope-gate --refresher", "reads the rolling state — not the violations log — and injects the card items gated on what has been firing, naming the counts. Falls back to the standing CONTINUE TEST when the session has no history yet, and stays quiet until the last injection has aged past --refresh-every"},
-			{"PreToolUse", "cope-gate --pretool", "scores the description or body an external write is about to post, matched against Linear's five save tools. Warn-only: it returns additionalContext and never a permissionDecision, so the call goes through and the model learns what the prose scored. It writes no session state, and it scores in the external lane, which drops the four rules that assume a reader who can answer"},
+			{"PreToolUse", "cope-gate --pretool", fmt.Sprintf("scores the description, body or content field an external write is about to post, matched against the Linear save tools named in the settings block. Warn-only: it returns additionalContext and never a permissionDecision, so the call goes through and the model learns what the prose scored. It writes no session state, and it scores in the external lane, which drops %s", strings.Join(scan.NeedsAnswerableReader(), ", "))},
 		},
 		SettingsJSON: settingsJSON,
 		StyleInstall: styleInstallFact{
@@ -787,12 +787,20 @@ var lanes = []laneFact{
 	{
 		Name:  "loop",
 		When:  "the prompt that opened the turn was /loop or /goal, or the sentinel a dynamic-pacing loop sends itself",
-		Drops: []string{"ask_not_last", "forked_end", "dangling_end", "buried_decision"},
+		Drops: scan.NeedsAnswerableReader(),
 		Adds:  []string{"unverified_done", "loop_ask"},
 		Because: "nobody is reading yet. A report that correctly names what it left open and stops would fail three " +
 			"of the dropped rules, and a question in it lands in a log where the next iteration reads it as an " +
 			"instruction to itself. What replaces them is the claim check: a report saying the work is done has to " +
 			"say what it ran",
+	},
+	{
+		Name:  "external",
+		When:  "the PreToolUse entry scores prose an external write is about to post, rather than a reply",
+		Drops: scan.NeedsAnswerableReader(),
+		Because: "a ticket has a reader and no ending they can answer. It is read days later by somebody who was " +
+			"not in the session, which is the condition every rule that survives the drop was written for — so " +
+			"this lane swaps nothing in, where the loop lane swapped four for two",
 	},
 }
 

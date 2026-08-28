@@ -2,6 +2,7 @@ package scan
 
 import (
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -38,6 +39,19 @@ var needsAnswerableReader = map[string]bool{
 	"forked_end":      true,
 	"dangling_end":    true,
 	"buried_decision": true,
+}
+
+// NeedsAnswerableReader is that set, sorted, for anything describing a lane
+// rather than running one. The docs prompt used to carry the list written out
+// by hand in two places and the count in a third, which is three copies of a
+// fact that lives here.
+func NeedsAnswerableReader() []string {
+	out := make([]string, 0, len(needsAnswerableReader))
+	for id := range needsAnswerableReader {
+		out = append(out, id)
+	}
+	sort.Strings(out)
+	return out
 }
 
 var (
