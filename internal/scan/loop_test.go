@@ -120,9 +120,9 @@ func TestSuppressedRulesAreRealRuleIDs(t *testing.T) {
 			seen[id] = true
 		}
 	}
-	for id := range suppressedInLoop {
+	for id := range needsAnswerableReader {
 		if !seen[id] && !strings.HasPrefix(id, "buried") {
-			t.Errorf("suppressedInLoop names %q, which no fixture here produces — "+
+			t.Errorf("needsAnswerableReader names %q, which no fixture here produces — "+
 				"either the fixtures are wrong or the rule id is stale", id)
 		}
 	}
@@ -162,5 +162,47 @@ func TestLoopRenderCarriesNothingThatAsks(t *testing.T) {
 			strings.Contains(out, tt.Name) {
 			t.Errorf("an at_* test reached the loop render: %s", tt.Name)
 		}
+	}
+}
+
+// The external lane drops the same four and adds nothing. A ticket has a
+// reader, but not one who can answer "continue" — and the voicing rules that
+// remain are the point of scoring it at all.
+func TestExternalLaneDropsTheEndingRulesAndAddsNothing(t *testing.T) {
+	c := &Card{}
+	ticket := "Rebased onto main and reran the suite, four packages green.\n\n" +
+		"The stale fixture in scan_test.go is still unresolved. I left it alone " +
+		"because it passes and nothing in this run touched that path."
+
+	if !ruleSet(c.CheckLane(ticket, 0.35, "interactive"))["dangling_end"] {
+		t.Fatal("fixture no longer produces dangling_end in the interactive lane")
+	}
+	if ruleSet(c.CheckLane(ticket, 0.35, LaneExternal))["dangling_end"] {
+		t.Error("external lane kept a rule about a reader who can answer")
+	}
+
+	// The two the loop lane adds are about an unattended run, which a ticket is
+	// not. Neither belongs here.
+	asking := "Rebased onto main and reran the suite.\n\nWant me to push it?"
+	for _, id := range []string{"loop_ask", "unverified_done"} {
+		if ruleSet(c.CheckLane(asking, 0.35, LaneExternal))[id] {
+			t.Errorf("external lane picked up %s, which is a loop-lane rule", id)
+		}
+	}
+}
+
+// Everything the lane does NOT drop still has to fire, or the lane is an off
+// switch wearing a filter's name.
+func TestExternalLaneKeepsTheVoicingRules(t *testing.T) {
+	c := &Card{}
+	// A labelled opening: a noun phrase standing where a sentence belongs, with
+	// the rest of the paragraph unpacking it. As wrong in a ticket description
+	// as in a reply, and nothing about the external lane touches it.
+	desc := "Row loss on cursor reset. The sync drops every row written after the " +
+		"upstream cursor rewinds, because the batch commits before the cursor " +
+		"advances and the next poll starts from the stale position."
+	got := ruleSet(c.CheckLane(desc, 0.35, LaneExternal))
+	if len(got) == 0 {
+		t.Fatalf("external lane scored labelled prose clean: %v", got)
 	}
 }

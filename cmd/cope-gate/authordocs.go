@@ -140,10 +140,11 @@ type hookFact struct {
 //
 // SessionStart --inject is deliberately not in it. That hook was how the card
 // used to arrive and it is the weakest slot available; the output style replaced
-// it. What is left are the two jobs a static style cannot do: Stop reads the
-// reply back and scores it, and UserPromptSubmit restates the rules that have
-// actually been firing this session, which is adaptive in a way a file written
-// once is not.
+// it. What is left are the three jobs a static style cannot do: Stop reads the
+// reply back and scores it, UserPromptSubmit restates the rules that have
+// actually been firing this session, and PreToolUse scores the prose an
+// external write is about to post — the one surface that never reaches the
+// transcript at all.
 //
 // The commands are bare, which assumes the go install target is on PATH in the
 // environment the hook runs in. It often is not, and the note under the block
@@ -162,6 +163,14 @@ const settingsJSON = `{
       {
         "hooks": [
           { "type": "command", "command": "cope-gate --refresher" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__linear__save_comment|mcp__linear__save_document|mcp__linear__save_issue|mcp__linear__save_project|mcp__linear__save_status_update",
+        "hooks": [
+          { "type": "command", "command": "cope-gate --pretool", "timeout": 10 }
         ]
       }
     ]
@@ -302,12 +311,13 @@ func collectFacts(c *scan.Card, fs *flag.FlagSet) docsFacts {
 			{"SessionStart", "cope-gate --inject", "prints the card as prompt text. SUPERSEDED by the output style and off by default: it puts the card in one turn-zero message, which Claude Code buries as the conversation grows. Measured 2026-08-03, a card asking for a bolded label on every paragraph and an emoji on every heading produced, through this hook, prose indistinguishable from no card at all. It stays for anyone who wants the old delivery, and it stands down on its own when a cope output style is active"},
 			{"Stop", "cope-gate", "scores the reply just written and appends which rules fired to the session's rolling state, plus one record per violation to the log"},
 			{"UserPromptSubmit", "cope-gate --refresher", "reads the rolling state — not the violations log — and injects the card items gated on what has been firing, naming the counts. Falls back to the standing CONTINUE TEST when the session has no history yet, and stays quiet until the last injection has aged past --refresh-every"},
+			{"PreToolUse", "cope-gate --pretool", "scores the description or body an external write is about to post, matched against Linear's five save tools. Warn-only: it returns additionalContext and never a permissionDecision, so the call goes through and the model learns what the prose scored. It writes no session state, and it scores in the external lane, which drops the four rules that assume a reader who can answer"},
 		},
 		SettingsJSON: settingsJSON,
 		StyleInstall: styleInstallFact{
 			Block: fmt.Sprintf("go install %s/cmd/cope-gate@latest\ncope-gate --setup\n# then: /config -> Output style -> %s",
 				"github.com/justinstimatze/cope", shippedStyleName()),
-			Setup:  "cope-gate --setup does the whole install: emits the output style, wires the two hooks into ~/.claude/settings.json with absolute paths, and prints the one step left. It backs the settings file up first, adds only what is missing so a second run changes nothing, leaves every other key alone including other tools' hooks on the same events, and refuses to touch a settings file that does not parse. --setup --dry-run prints what it would change and writes nothing",
+			Setup:  "cope-gate --setup does the whole install: emits the output style, wires the three hooks into ~/.claude/settings.json with absolute paths, and prints the one step left. It backs the settings file up first, adds only what is missing so a second run changes nothing, leaves every other key alone including other tools' hooks on the same events, and refuses to touch a settings file that does not parse. --setup --dry-run prints what it would change and writes nothing",
 			Emit:   "cope-gate --output-style writes the loaded card to ~/.claude/output-styles/<card>.md, and COPE_CARD=<name> in front of it emits a different one",
 			Select: fmt.Sprintf("pick it under /config -> Output style. The entry to look for is named %q, which is the shipped card's id and not the word cope — say the name, because a reader scanning that menu for something called cope will not find it. The standalone /output-style command was removed in Claude Code v2.1.91, so /config is the way; the same thing can be set as \"outputStyle\": %q in .claude/settings.local.json", shippedStyleName(), shippedStyleName()),
 			Timing: "a style is read once at session start, so a new selection or a re-emitted card applies at the next session or after /clear",

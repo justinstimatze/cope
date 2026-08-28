@@ -1,5 +1,50 @@
 # Changelog
 
+## Unreleased — the prose that leaves the conversation
+
+- **A `PreToolUse` hook scores external writes.** Until now cope could only see
+  a turn: `internal/scan` reaches prose through the Stop transcript, `--check`
+  on a file, and `--backfill` on a JSONL, and a Linear ticket description is
+  none of the three. It is written inside a turn, goes out mid-turn, and is read
+  days later by somebody who was not here — the one surface where prose scored
+  cold matters most, and the only one nothing was watching. `cope-gate
+  --pretool` reads the hook payload, scores the `description`, `body` or
+  `content` field, and returns `additionalContext`. `--setup` wires it against
+  Linear's five `save_*` tools; the matcher is built from the same map the entry
+  checks, so the two cannot drift.
+
+- **It warns and does not gate.** No `permissionDecision`, so the write
+  proceeds. cope's own posture settles this: POSTPROC rules carry `warn` or
+  `reject`, `--block` is opt-in, and it is off by default at Stop — where the
+  surface is a chat reply nobody else reads. Gating an external write harder
+  than cope gates its own output would invert the tool. The cost, stated in the
+  file rather than discovered later: `additionalContext` without a deny arrives
+  after the call, so the model learns the score once the item is posted and the
+  repair is an edit.
+
+- **It writes no session state, deliberately.** The obvious design is a
+  per-session seen-set so a tic is named once, and cope's version would be worse
+  than a shared one: `state.Session.Record` replaces the newest entry when the
+  key matches, and the key is the transcript id of the prompt that opened the
+  turn — a mid-turn scan carrying it would overwrite the turn's real reply
+  score, and an empty key appends a phantom turn into a 20-turn window instead.
+  Downstream, `Top` feeds the refresher, so ticket prose would decide which card
+  items get restated to somebody writing chat replies. Per-write feedback
+  repeats, which is the correct amount.
+
+- **A third lane, `external`.** Four rules — `ask_not_last`, `dangling_end`,
+  `forked_end`, `buried_decision` — measure an ending for a reader who can
+  answer "continue", and a ticket has no such reader. The external lane drops
+  them and adds nothing, where the loop lane swapped its four for two. What is
+  left is the whole point of scoring a ticket: it is read cold by definition,
+  which is the condition every remaining rule was written for. `suppressedInLoop`
+  is now `needsAnswerableReader`, because two lanes share it for one reason.
+
+- **The documented settings block is tested against what `--setup` writes.**
+  `settingsJSON` is hand-written and `setupHooks` is code; the README copies the
+  first while the installer writes the second, and nothing tied them together
+  until a third hook meant editing both by hand.
+
 ## v0.5.0 (2026-08-04) — the front page stops describing a different card
 
 - **The front page is written from `fieldguide` instead of `claude_maximal`.**

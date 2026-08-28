@@ -27,9 +27,13 @@ import (
 // places is cheaper than a package that exists to hold it.
 const LaneLoop = "loop"
 
-// suppressedInLoop are the rules whose subject is a reader who can answer.
-// They are not wrong, they are asking a question the loop lane does not pose.
-var suppressedInLoop = map[string]bool{
+// needsAnswerableReader are the rules whose subject is a reader who can answer.
+// They are not wrong, they are asking a question some lanes do not pose — the
+// loop lane, where nobody is reading yet, and the external lane, where the
+// reader is holding a ticket rather than a turn. Both drop the same four for
+// the same reason, which is why the name is about the assumption rather than
+// about either lane.
+var needsAnswerableReader = map[string]bool{
 	"ask_not_last":    true,
 	"forked_end":      true,
 	"dangling_end":    true,
@@ -147,21 +151,27 @@ func loopAsk(ps []string) []Violation {
 	return nil
 }
 
-// CheckLane runs the card over one reply with the lane's rules.
+// CheckLane runs the card over one piece of prose with the lane's rules.
 //
 // Interactive is Check unchanged, so nothing measured before this existed
 // changes meaning. The loop lane drops the four rules that assume a reader who
-// can answer and adds the two that assume one who cannot.
+// can answer and adds the two that assume one who cannot. The external lane
+// drops the same four and adds nothing — see LaneExternal.
 func (c *Card) CheckLane(text string, minCV float64, lane string) []Violation {
 	v := c.Check(text, minCV)
-	if lane != LaneLoop {
+	if lane != LaneLoop && lane != LaneExternal {
 		return v
 	}
 	kept := v[:0]
 	for _, x := range v {
-		if !suppressedInLoop[x.RuleID] {
+		if !needsAnswerableReader[x.RuleID] {
 			kept = append(kept, x)
 		}
+	}
+	if lane == LaneExternal {
+		// Allow runs again because the filter above can only remove, and a card
+		// that gated one of the four has already had it dropped twice over.
+		return c.Allow(kept)
 	}
 	raw := rawParagraphs(Redact(text))
 	kept = append(kept, unverifiedDone(text, raw)...)

@@ -11,6 +11,7 @@
 //	SessionStart      cope-gate --inject       puts the card into context
 //	Stop              cope-gate                checks what came out
 //	UserPromptSubmit  cope-gate --refresher    restates the rule that decays first
+//	PreToolUse        cope-gate --pretool      checks prose leaving the conversation
 //
 // Backfill mode scores a whole session at once, which is how the rules were
 // calibrated in the first place:
@@ -114,6 +115,7 @@ type options struct {
 	renderFor   *string
 	display     *bool
 	displayIn   *bool
+	pretool     *bool
 	renderLane  *string
 }
 
@@ -142,6 +144,7 @@ func registerFlags(fs *flag.FlagSet) *options {
 		abReport:    fs.String("ab-report", "", "read a turn log and report how each variant did; - reads the default path"),
 		renderArm:   fs.String("render-arm", "", "print the mid-session reminder one variant would inject, and exit"),
 		display:     fs.Bool("display", false, "MessageDisplay entry: rewrite what the reader sees, leaving the transcript alone"),
+		pretool:     fs.Bool("pretool", false, "PreToolUse entry: score the prose an external write is about to post, warn-only"),
 		displayIn:   fs.Bool("display-preview", false, "read prose on stdin and print it as --display would rewrite it"),
 		renderFor:   fs.String("render-for", "", "comma-separated rule ids to render -render-arm against"),
 		renderLane:  fs.String("render-lane", "", "render -render-arm as the given lane sees it: interactive (default) or loop"),
@@ -190,6 +193,11 @@ func main() {
 
 	if *opt.renderArm != "" {
 		runRenderArm(c, *opt.renderArm, *opt.renderFor, *opt.renderLane)
+		return
+	}
+
+	if *opt.pretool {
+		runPreTool(c, *minCV, *logPath)
 		return
 	}
 

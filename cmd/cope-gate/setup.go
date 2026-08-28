@@ -1,7 +1,7 @@
 package main
 
 // --setup does the install a reader would otherwise do by hand: emit the output
-// style, wire the two hooks, and say the one thing left to click.
+// style, wire the three hooks, and say the one thing left to click.
 //
 // It edits ~/.claude/settings.json, which is the most invasive thing this
 // binary does. That file holds API keys, other tools' hooks and permission
@@ -23,15 +23,37 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
 	"github.com/justinstimatze/cope/internal/scan"
 )
 
+// preToolMatcher is the tool-name pattern the PreToolUse entry registers.
+//
+// Built from the same map runPreTool checks, so the two cannot drift: a tool
+// added to one and forgotten in the other would either be scored without being
+// matched, or matched and then silently dropped. Sorted because a map has no
+// order and a settings file that changes on every --setup looks like a hook
+// rewriting itself.
+func preToolMatcher() string {
+	names := make([]string, 0, len(preToolTools))
+	for name := range preToolTools {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return strings.Join(names, "|")
+}
+
 // setupHooks are the events worth wiring now that the card arrives as an output
 // style. SessionStart is deliberately absent: that was the card's old delivery
 // and it is the weakest slot available.
+//
+// PreToolUse is the one entry that is not about the conversation. It covers the
+// prose that leaves it — see cmd/cope-gate/pretool.go — and it is not async,
+// because a PreToolUse hook that returns after its tool call has run has
+// nothing left to add context to.
 func setupHooks(self string) map[string]any {
 	return map[string]any{
 		"Stop": []any{map[string]any{
@@ -43,6 +65,12 @@ func setupHooks(self string) map[string]any {
 		"UserPromptSubmit": []any{map[string]any{
 			"hooks": []any{map[string]any{
 				"type": "command", "command": self + " --refresher",
+			}},
+		}},
+		"PreToolUse": []any{map[string]any{
+			"matcher": preToolMatcher(),
+			"hooks": []any{map[string]any{
+				"type": "command", "command": self + " --pretool", "timeout": 10,
 			}},
 		}},
 	}
@@ -121,6 +149,9 @@ func runSetup(c *scan.Card, dryRun bool) int {
 		}
 		added = append(added, event)
 	}
+	// Sorted because setupHooks returns a map, and an unsorted line would name
+	// the same three events in a different order on every run.
+	sort.Strings(added)
 	settings["hooks"] = hooks
 
 	if len(added) == 0 {

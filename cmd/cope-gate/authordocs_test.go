@@ -163,3 +163,37 @@ func TestRuleIDsMatchTheDocumentedSet(t *testing.T) {
 		}
 	}
 }
+
+// settingsJSON is hand-written and setupHooks is code, and the README copies
+// the first while --setup writes the second. Nothing tied them together until
+// a third hook was added and both had to be edited by hand.
+func TestSettingsBlockNamesTheSameEventsSetupWires(t *testing.T) {
+	var doc struct {
+		Hooks map[string]any `json:"hooks"`
+	}
+	if err := json.Unmarshal([]byte(settingsJSON), &doc); err != nil {
+		t.Fatalf("the documented settings block does not parse: %v", err)
+	}
+	wired := setupHooks("cope-gate")
+	for event := range wired {
+		if _, ok := doc.Hooks[event]; !ok {
+			t.Errorf("--setup wires %s and the README block does not mention it", event)
+		}
+	}
+	for event := range doc.Hooks {
+		if _, ok := wired[event]; !ok {
+			t.Errorf("the README block documents %s and --setup does not wire it", event)
+		}
+	}
+
+	// The matcher is the part a reader has to copy exactly, and it is the part
+	// that changes whenever the covered tool set does.
+	pre, _ := doc.Hooks["PreToolUse"].([]any)
+	if len(pre) != 1 {
+		t.Fatalf("PreToolUse block is not one entry: %v", pre)
+	}
+	entry, _ := pre[0].(map[string]any)
+	if got, _ := entry["matcher"].(string); got != preToolMatcher() {
+		t.Errorf("documented matcher has drifted:\n  doc:  %s\n  live: %s", got, preToolMatcher())
+	}
+}
