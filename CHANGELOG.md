@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — the prose that leaves the conversation
+## v0.6.0 (2026-08-28) — the prose that leaves the conversation
 
 - **A `PreToolUse` hook scores external writes.** Until now cope could only see
   a turn: `internal/scan` reaches prose through the Stop transcript, `--check`
@@ -44,6 +44,30 @@
   `settingsJSON` is hand-written and `setupHooks` is code; the README copies the
   first while the installer writes the second, and nothing tied them together
   until a third hook meant editing both by hand.
+
+- **The lane list was two entries and the README documents it exhaustively.**
+  So the regenerated front page described the interactive and loop lanes and
+  silently omitted the one this release adds — the loaded-versus-shipped defect
+  this repo keeps producing, one layer up. `scan.NeedsAnswerableReader` returns
+  the dropped set sorted, and the loop lane, the external lane and the hook
+  description all read it instead of writing it out.
+
+- **Two figures came out of the prose and one out of a generator.** The front
+  page carried "the four rules that assume a reader who can answer" and
+  "Linear's five save tools" as hand-written counts in a fact string. The demo
+  index said "sixteen rules" as a word inside a spliced block, where it read as
+  derived and was the one thing on that page nothing would have updated; it is
+  now the built-in count plus the shipped card's `POSTPROC` rules, read from
+  `--author-docs`.
+
+- **All six demo renders and the front page are regenerated.** They are the same
+  page written from different cards, so a fact added to the prompt reaches none
+  of them until they are rendered again.
+
+- **The staticcheck pin moved to 2026.2.** `go-version` is `stable` and floats;
+  2026.1 could not read Go 1.26's export data, so every package failed to import
+  and CI went red on a commit that touched no Go the analyzer had an opinion
+  about.
 
 ## v0.5.0 (2026-08-04) — the front page stops describing a different card
 
