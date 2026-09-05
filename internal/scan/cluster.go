@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 )
@@ -20,16 +21,31 @@ import (
 // is scored; the clustering is a second reading of the same violations, so a
 // rule that would have been reported alone still is.
 
-// Cluster is one paragraph that drew hits from several rules.
+// Cluster is one paragraph that drew a concentration of hits, either from
+// several rules or from one rule several times.
 type Cluster struct {
 	// Rules is the distinct rule ids that landed there, sorted.
 	Rules []string
+	// Counts is how many times each of them did.
+	Counts map[string]int
+	// Repeated is the rule that landed min times or more on its own, empty
+	// when the paragraph qualified by breadth instead.
+	Repeated string
 	// Excerpt is the paragraph, flattened to one line.
 	Excerpt string
 }
 
-// Clusters returns the paragraphs where at least min distinct rules landed,
-// most-hit first.
+// Clusters returns the paragraphs where at least min distinct rules landed, or
+// where one rule landed at least min times. Widest first.
+//
+// The second condition is the one a field report asked for and the first one
+// does not cover. Running --check over 107 documents produced 114 flip hits of
+// which seven were worth changing, and all seven were visible as three in a
+// paragraph rather than as anything about the form: "the finding that actually
+// changed my prose was 'three in this paragraph', not 'here is a flip'". Three
+// hits of one rule is a concentration exactly the way three different rules is,
+// and reporting only breadth prints nothing for the case with the measurement
+// behind it.
 //
 // A violation is placed by looking for its matched text in the reply, so a
 // match that appears twice is attributed to its first occurrence and one whose
@@ -44,17 +60,30 @@ func Clusters(text string, v []Violation, min int) []Cluster {
 
 	var out []Cluster
 	for i, h := range hits {
-		if len(h) < min {
+		ids := make([]string, 0, len(h))
+		repeated, most := "", 0
+		for id, n := range h {
+			ids = append(ids, id)
+			if n > most || (n == most && id < repeated) {
+				repeated, most = id, n
+			}
+		}
+		if len(ids) < min && most < min {
 			continue
 		}
-		ids := make([]string, 0, len(h))
-		for id := range h {
-			ids = append(ids, id)
-		}
 		sort.Strings(ids)
+		// Breadth wins when both conditions hold. Three different rules on a
+		// paragraph says more about it than three hits of one, and naming the
+		// three is what tells a reader to rewrite the block rather than hunt a
+		// construction.
+		if most < min || len(ids) >= min {
+			repeated = ""
+		}
 		out = append(out, Cluster{
-			Rules:   ids,
-			Excerpt: strings.TrimSpace(strings.ReplaceAll(text[paras[i].lo:paras[i].hi], "\n", " ")),
+			Rules:    ids,
+			Counts:   h,
+			Repeated: repeated,
+			Excerpt:  strings.TrimSpace(strings.ReplaceAll(text[paras[i].lo:paras[i].hi], "\n", " ")),
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool { return len(out[i].Rules) > len(out[j].Rules) })
@@ -85,18 +114,18 @@ func paraSpans(text string) []span {
 	return out
 }
 
-// placeHits returns, per paragraph, the distinct rule ids that landed in it.
-func placeHits(text string, paras []span, v []Violation) []map[string]bool {
-	hits := make([]map[string]bool, len(paras))
+// placeHits returns, per paragraph, how many times each rule landed in it.
+func placeHits(text string, paras []span, v []Violation) []map[string]int {
+	hits := make([]map[string]int, len(paras))
 	for _, x := range v {
 		i := paraAt(text, paras, x.Matched)
 		if i < 0 {
 			continue
 		}
 		if hits[i] == nil {
-			hits[i] = map[string]bool{}
+			hits[i] = map[string]int{}
 		}
-		hits[i][x.RuleID] = true
+		hits[i][x.RuleID]++
 	}
 	return hits
 }
@@ -120,9 +149,11 @@ func paraAt(text string, paras []span, matched string) int {
 
 // ClusterLine renders the clusters as one line each, or nothing.
 //
-// Three is the floor rather than two because two rules on a paragraph is
-// ordinary: labelled_opening and clause_symmetry both read the same opening
-// sentence and land together often enough that reporting it would be noise.
+// Three is the floor rather than two on both conditions. Two rules on a
+// paragraph is ordinary — labelled_opening and clause_symmetry read the same
+// opening sentence and land together often enough that reporting it would be
+// noise — and two hits of one rule is a coincidence a reader can see without
+// help.
 func ClusterLine(text string, v []Violation) string {
 	cs := Clusters(text, v, 3)
 	if len(cs) == 0 {
@@ -130,10 +161,23 @@ func ClusterLine(text string, v []Violation) string {
 	}
 	var b strings.Builder
 	for _, c := range cs {
-		b.WriteString("  one paragraph drew " + strings.Join(c.Rules, ", ") +
-			" — rewrite it rather than the sentences:\n      " + trimTo(c.Excerpt, 160) + "\n")
+		b.WriteString("  " + clusterSentence(c) + "\n      " + trimTo(c.Excerpt, 160) + "\n")
 	}
 	return b.String()
+}
+
+// clusterSentence says which kind of concentration this is, because the two
+// call for different edits. Several rules on a paragraph means the paragraph is
+// wrong and the sentences are symptoms; one rule several times means the
+// construction is a habit in this passage, which is what a per-instance report
+// cannot show.
+func clusterSentence(c Cluster) string {
+	if c.Repeated != "" {
+		return fmt.Sprintf("one paragraph drew %s ×%d — the density is the finding, not any one of them:",
+			c.Repeated, c.Counts[c.Repeated])
+	}
+	return "one paragraph drew " + strings.Join(c.Rules, ", ") +
+		" — rewrite it rather than the sentences:"
 }
 
 func trimTo(s string, n int) string {

@@ -59,3 +59,66 @@ func TestClustersSkipsUnplaceableHits(t *testing.T) {
 		t.Errorf("placed a hit it could not find: %+v", cs)
 	}
 }
+
+// The condition the field report asked for: 114 flip hits over 107 documents,
+// seven worth changing, and every one of the seven visible as three in a
+// paragraph rather than as anything about the form.
+func TestClustersFindsOneRuleRepeated(t *testing.T) {
+	text := "The gate reads the transcript once per turn and writes nothing back.\n\n" +
+		"It is not the parser, it's the commit order. The failure is not the batch, " +
+		"it's the cursor. The fix is not a retry, it's an ordering change.\n\n" +
+		"Nothing else changed in this run."
+	v := []Violation{
+		{RuleID: "flip", Matched: "It is not the parser, it's the commit order"},
+		{RuleID: "flip", Matched: "The failure is not the batch, it's the cursor"},
+		{RuleID: "flip", Matched: "The fix is not a retry, it's an ordering change"},
+	}
+	cs := Clusters(text, v, 3)
+	if len(cs) != 1 {
+		t.Fatalf("got %d clusters, want 1: %+v", len(cs), cs)
+	}
+	if cs[0].Repeated != "flip" || cs[0].Counts["flip"] != 3 {
+		t.Errorf("repeated=%q counts=%v", cs[0].Repeated, cs[0].Counts)
+	}
+	if line := ClusterLine(text, v); !strings.Contains(line, "flip ×3") {
+		t.Errorf("line does not carry the count:\n%s", line)
+	}
+}
+
+// Two of one rule is a coincidence a reader can see without help.
+func TestClustersLeavesTwoOfOneRuleAlone(t *testing.T) {
+	text := "It is not the parser, it's the commit order. The failure is not the batch, " +
+		"it's the cursor."
+	v := []Violation{
+		{RuleID: "flip", Matched: "It is not the parser, it's the commit order"},
+		{RuleID: "flip", Matched: "The failure is not the batch, it's the cursor"},
+	}
+	if cs := Clusters(text, v, 3); len(cs) != 0 {
+		t.Errorf("clustered two: %+v", cs)
+	}
+}
+
+// Both conditions at once reports the breadth, since naming three rules tells a
+// reader to rewrite the block rather than hunt one construction.
+func TestClustersPrefersBreadthOverDensity(t *testing.T) {
+	text := "Row loss on cursor reset. It is not the parser, it's the commit order. " +
+		"The failure is not the batch, it's the cursor. The fix is not a retry, it's ordering. " +
+		"The gate reads it. The gate writes it. The gate closes it."
+	v := []Violation{
+		{RuleID: "flip", Matched: "It is not the parser, it's the commit order"},
+		{RuleID: "flip", Matched: "The failure is not the batch, it's the cursor"},
+		{RuleID: "flip", Matched: "The fix is not a retry, it's ordering"},
+		{RuleID: "labelled_opening", Matched: "Row loss on cursor reset"},
+		{RuleID: "repeated_opening", Matched: "The gate reads it."},
+	}
+	cs := Clusters(text, v, 3)
+	if len(cs) != 1 {
+		t.Fatalf("got %d clusters, want 1", len(cs))
+	}
+	if cs[0].Repeated != "" {
+		t.Errorf("reported density where three rules landed: %+v", cs[0])
+	}
+	if line := ClusterLine(text, v); !strings.Contains(line, "flip, labelled_opening, repeated_opening") {
+		t.Errorf("line does not name the three:\n%s", line)
+	}
+}

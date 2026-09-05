@@ -56,6 +56,14 @@
   idea is the source page's: one em dash is punctuation, several tells together
   are the evidence. Nothing about what fires or how it is scored changed.
 
+- **A paragraph counts as clustered when one rule lands three times, too.** The
+  first form of the clusterer required three *distinct* rules, which misses the
+  case with a measurement behind it: `--check` over 107 tracked documents
+  produced 114 `flip` hits of which seven were worth changing, and every one of
+  the seven was visible as three in a paragraph rather than as anything about
+  the form. Breadth still wins when both hold, since naming three rules tells a
+  reader to rewrite the block rather than hunt a construction.
+
 - **`--check-lane` scores a file as a lane sees it.** `--check` always ran the
   interactive lane, so checking ticket prose meant chasing the four ending rules
   the `PreToolUse` entry drops. `interactive`, `loop` and `external` are
