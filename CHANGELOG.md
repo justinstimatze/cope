@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — the list somebody else curated
+## v0.7.0 (2026-09-04) — the list somebody else curated
 
 - **Three rules mined from Wikipedia's "Signs of AI writing."** Every rule
   before these came from this machine's transcripts, a published measurement, or
@@ -24,9 +24,9 @@
   ending and the one move here the card already bans in prose. It found 1 hit in
   10,256 replies, and widening it from the closing sentence to the whole closing
   block found the same one. The phrases are in the corpus — 62 occurrences in
-  the raw text of 400 of those transcripts — but almost never as the close. This
-  repo cut `verdict_handoff` at 38 hits in 20.1M characters; this was two orders
-  of magnitude under that.
+  the raw text of 400 of the 2,477 transcripts those replies came from — but
+  almost never as the close. This repo cut `verdict_handoff` at 38 hits in 20.1M
+  characters; this was two orders of magnitude under that.
 
 - **A rule read across a redacted code span, and the demo render caught it.**
   `Redact` blanks code in place and `splitSentences` trims, so a sentence
@@ -41,10 +41,12 @@
   words, sales language, filler, stacked qualifiers — are basanite's axis, which
   measures a word against a baseline instead of banning it, and this card moved
   `verdict_handoff`'s nine strings there in July for the same reason. The
-  formatting patterns are declined on purpose: `bold_label` banned humanizer's
-  bold mini-headings until 52 blind pairs put bold and bullets among the three
-  things that decided a reply for this repo's reader, and it was deleted rather
-  than tuned. Lifting them back would re-add what a measurement took out.
+  formatting patterns are declined on purpose: `bold_label` banned the same bold
+  mini-headings humanizer's #16 does — arrived at independently, and deleted on
+  2026-07-30, five weeks before this list was read — because 52 blind pairs had
+  the reader name bold and bullets as one of the three things that decide a
+  reply for him, alongside brevity and a clear closing action. It was deleted
+  rather than tuned. Lifting them back would re-add what a measurement took out.
 
 - **Hits are clustered before they are printed.** Every rule fires on its own
   and knows nothing about the others, so a report was a flat list and a reader
@@ -52,7 +54,8 @@
   edits; three hits inside one paragraph are one paragraph to write again, and
   the flat list could not tell them apart. `scan.Clusters` reads the same
   violations a second time and the Stop hook, `--check` and `--pretool` all
-  print a line naming any paragraph that drew three or more distinct rules. The
+  print a line naming a paragraph that drew a concentration of hits — three or
+  more distinct rules to begin with, widened by the next entry. The
   idea is the source page's: one em dash is punctuation, several tells together
   are the evidence. Nothing about what fires or how it is scored changed.
 
@@ -71,20 +74,42 @@
   default — the failure that guards against is a caller who typed `extenal` and
   was told nothing.
 
-- **`--card-from-sample` writes a card from prose somebody already wrote.**
+- **`--card-from-sample` prints the prompt for a card built from prose
+  somebody already wrote.**
   Every card here was written by hand, which is fine for the shipped one and
   wrong for everybody else: authoring a card asks somebody to describe a voice
   before they have used the tool, when what they can always do is point at three
   paragraphs they like. The flag prints a prompt — the grammar, the budget, the
   gateable rule ids, the sample, and the two checks that say whether the result
   describes the sample or describes a card — the same shape `--author-docs`
-  already uses, because cope has no API client and wants none. The idea is
+  already uses, because the binary has no API client and wants none — the
+  Anthropic call lives in `tools/generate_readme.py`, outside it. The idea is
   humanizer's, which takes a writing sample and follows it over its own style
   rules; cope's version is durable rather than per-call, since the sample
   becomes the card every later turn is scored against.
 
 - **`humanizer` named in related projects.** Four axes now: cope shapes prose,
   basanite tracks vocabulary, humanizer rewrites, caveman shortens.
+
+- **Two facts the generated pages could not describe.** `README.md` and the six
+  demo renders are written by a model from the fact list `--author-docs` emits,
+  so a fact that does not exist is a page that cannot mention it. The clustering
+  had none, and every page documented each rule and nothing about reading
+  several of them together. Separately, the related-projects instruction named
+  `effigy` and `basanite` by hand while the list had grown to four, so
+  `humanizer` — added to the fact list in this same release — never reached the
+  page that announces it one bullet above. `caveman` survived on all seven
+  pages, but only because the model kept an entry nothing told it to keep. Both
+  are one defect: the fact list grows and a hand-written instruction beside it
+  does not. The instruction now iterates the list.
+
+- **And one fact that was not true.** The `fragment_run` entry said a card
+  written to sound clipped declines the rule with `@gate`. None does — the rule
+  fires zero times on both `precise` and `caveman`, and the only `@gate` lines
+  in the repo decline `clause_symmetry`, `dangling_end` and `labelled_opening`.
+  The same sentence had already been corrected where the rule is implemented;
+  `cmd/cope-gate/authordocs.go` carried its own copy, which is the one that
+  reaches the page.
 
 ## v0.6.0 (2026-08-28) — the prose that leaves the conversation
 
