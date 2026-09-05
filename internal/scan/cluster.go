@@ -39,44 +39,8 @@ func Clusters(text string, v []Violation, min int) []Cluster {
 	if min < 2 || len(v) < min {
 		return nil
 	}
-	type para struct {
-		lo, hi int
-	}
-	var paras []para
-	off := 0
-	for _, p := range paraSplit.Split(text, -1) {
-		// An empty block between two separators would match at offset zero and
-		// swallow every hit into a paragraph with no text in it.
-		if strings.TrimSpace(p) == "" {
-			continue
-		}
-		i := strings.Index(text[off:], p)
-		if i < 0 {
-			continue
-		}
-		paras = append(paras, para{off + i, off + i + len(p)})
-		off += i + len(p)
-	}
-
-	hits := make([]map[string]bool, len(paras))
-	for _, x := range v {
-		if x.Matched == "" {
-			continue
-		}
-		at := strings.Index(text, x.Matched)
-		if at < 0 {
-			continue
-		}
-		for i, p := range paras {
-			if at >= p.lo && at < p.hi {
-				if hits[i] == nil {
-					hits[i] = map[string]bool{}
-				}
-				hits[i][x.RuleID] = true
-				break
-			}
-		}
-	}
+	paras := paraSpans(text)
+	hits := placeHits(text, paras, v)
 
 	var out []Cluster
 	for i, h := range hits {
@@ -95,6 +59,63 @@ func Clusters(text string, v []Violation, min int) []Cluster {
 	}
 	sort.SliceStable(out, func(i, j int) bool { return len(out[i].Rules) > len(out[j].Rules) })
 	return out
+}
+
+// span is one paragraph's byte range in the original text.
+type span struct{ lo, hi int }
+
+// paraSpans locates each paragraph in the text it came from, so a violation
+// found by byte offset can be attributed to one.
+func paraSpans(text string) []span {
+	var out []span
+	off := 0
+	for _, p := range paraSplit.Split(text, -1) {
+		// An empty block between two separators would match at offset zero and
+		// swallow every hit into a paragraph with no text in it.
+		if strings.TrimSpace(p) == "" {
+			continue
+		}
+		i := strings.Index(text[off:], p)
+		if i < 0 {
+			continue
+		}
+		out = append(out, span{off + i, off + i + len(p)})
+		off += i + len(p)
+	}
+	return out
+}
+
+// placeHits returns, per paragraph, the distinct rule ids that landed in it.
+func placeHits(text string, paras []span, v []Violation) []map[string]bool {
+	hits := make([]map[string]bool, len(paras))
+	for _, x := range v {
+		i := paraAt(text, paras, x.Matched)
+		if i < 0 {
+			continue
+		}
+		if hits[i] == nil {
+			hits[i] = map[string]bool{}
+		}
+		hits[i][x.RuleID] = true
+	}
+	return hits
+}
+
+// paraAt is the index of the paragraph containing matched, or -1.
+func paraAt(text string, paras []span, matched string) int {
+	if matched == "" {
+		return -1
+	}
+	at := strings.Index(text, matched)
+	if at < 0 {
+		return -1
+	}
+	for i, p := range paras {
+		if at >= p.lo && at < p.hi {
+			return i
+		}
+	}
+	return -1
 }
 
 // ClusterLine renders the clusters as one line each, or nothing.

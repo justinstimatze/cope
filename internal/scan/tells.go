@@ -84,40 +84,19 @@ func echoedHeading(redacted string) []Violation {
 	blocks := paraSplit.Split(redacted, -1)
 	var out []Violation
 	for i, b := range blocks {
-		b = strings.TrimSpace(b)
-		if !strings.HasPrefix(b, "#") {
+		if !strings.HasPrefix(strings.TrimSpace(b), "#") {
 			continue
 		}
-		// A heading and its body are one block whenever a single newline
-		// separates them, so take the rest of this block first and only fall
-		// through to the next when the heading stands alone.
-		head, body, split := strings.Cut(b, "\n")
-		if !split || strings.TrimSpace(body) == "" {
-			if i+1 >= len(blocks) {
-				continue
-			}
-			head, body = b, blocks[i+1]
+		head, body, ok := headingAndBody(blocks, i)
+		if !ok {
+			continue
 		}
 		topic := headingTopic(head)
-		if len(topic) < 2 {
-			continue
-		}
 		sents := splitSentences(strings.TrimSpace(body))
-		if len(sents) == 0 {
+		if len(topic) < 2 || len(sents) == 0 {
 			continue
 		}
-		first := strings.ToLower(sents[0])
-		if strings.HasPrefix(strings.TrimSpace(first), "#") {
-			continue
-		}
-		all := true
-		for _, w := range topic {
-			if !strings.Contains(first, w) {
-				all = false
-				break
-			}
-		}
-		if !all {
+		if !restates(topic, sents[0]) {
 			continue
 		}
 		out = append(out, Violation{
@@ -129,6 +108,39 @@ func echoedHeading(redacted string) []Violation {
 		})
 	}
 	return out
+}
+
+// headingAndBody pairs a heading with the prose under it.
+//
+// A heading and its body are one block whenever a single newline separates
+// them, so the rest of this block is taken first and the next block only when
+// the heading stands alone. A heading followed by another heading has no body.
+func headingAndBody(blocks []string, i int) (head, body string, ok bool) {
+	b := strings.TrimSpace(blocks[i])
+	head, body, split := strings.Cut(b, "\n")
+	if split && strings.TrimSpace(body) != "" {
+		return head, body, true
+	}
+	if i+1 >= len(blocks) {
+		return "", "", false
+	}
+	body = blocks[i+1]
+	if strings.HasPrefix(strings.TrimSpace(body), "#") {
+		return "", "", false
+	}
+	return b, body, true
+}
+
+// restates reports whether every content word of the heading appears in the
+// sentence below it.
+func restates(topic []string, first string) bool {
+	lower := strings.ToLower(first)
+	for _, w := range topic {
+		if !strings.Contains(lower, w) {
+			return false
+		}
+	}
+	return true
 }
 
 // RepeatedOpening flags several sentences in one reply starting the same way.
@@ -248,31 +260,44 @@ func FragmentRun(text string) []Violation {
 func fragmentRun(ps []string) []Violation {
 	var out []Violation
 	for _, p := range ps {
-		run, start := 0, ""
-		for _, s := range splitSentences(p) {
-			ws := words(s)
-			if len(ws) == 0 {
-				continue
-			}
-			if len(ws) <= 5 && !hasFiniteVerb(ws) {
-				if run == 0 {
-					start = strings.TrimSpace(s)
-				}
-				run++
-				if run == 3 {
-					out = append(out, Violation{
-						RuleID:  "fragment_run",
-						Action:  "warn",
-						Why:     "three fragments in a row — one is emphasis, a run of them is the staccato that reads as generated",
-						Matched: start,
-						Context: strings.TrimSpace(strings.ReplaceAll(p, "\n", " ")),
-					})
-					break
-				}
-				continue
-			}
-			run = 0
+		if start, ok := firstFragmentRun(p); ok {
+			out = append(out, Violation{
+				RuleID:  "fragment_run",
+				Action:  "warn",
+				Why:     "three fragments in a row — one is emphasis, a run of them is the staccato that reads as generated",
+				Matched: start,
+				Context: strings.TrimSpace(strings.ReplaceAll(p, "\n", " ")),
+			})
 		}
 	}
 	return out
+}
+
+// firstFragmentRun returns the first of three consecutive fragments in a
+// paragraph, if there are three.
+func firstFragmentRun(p string) (string, bool) {
+	run, start := 0, ""
+	for _, s := range splitSentences(p) {
+		ws := words(s)
+		if len(ws) == 0 {
+			continue
+		}
+		if !isFragment(ws) {
+			run = 0
+			continue
+		}
+		if run == 0 {
+			start = strings.TrimSpace(s)
+		}
+		if run++; run == 3 {
+			return start, true
+		}
+	}
+	return "", false
+}
+
+// isFragment is a noun phrase standing where a sentence belongs: short, and
+// carrying no finite verb.
+func isFragment(ws []string) bool {
+	return len(ws) <= 5 && !hasFiniteVerb(ws)
 }
