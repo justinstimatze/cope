@@ -14,6 +14,12 @@ import (
 // own history already paid for.
 const maxNeverRules = 10
 
+// MaxNeverRules is the budget, for anything describing the card format rather
+// than rendering it. The number was written out by hand in the prompt that
+// teaches somebody to author a card, which is the one place a stale copy would
+// teach the wrong budget.
+func MaxNeverRules() int { return maxNeverRules }
+
 // inlineExampleMarker matches effigy.prompt._INLINE_EXAMPLE_MARKERS: the
 // uppercase prefixes an author uses to embed a worked example inside a NEVER
 // rule. Case-sensitive so prose-lowercase "wrong" is untouched.

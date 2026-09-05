@@ -107,7 +107,7 @@ func TestDefaultLogPathFollowsXDGState(t *testing.T) {
 // world-readable.
 func TestReportWritesTheLogPrivately(t *testing.T) {
 	logPath := filepath.Join(t.TempDir(), "nested", "violations.jsonl")
-	report("cope:", []scan.Violation{{RuleID: "flip", Action: "warn", Matched: "not x, it's y"}}, "session-1", logPath)
+	report("cope:", "not x, it's y", []scan.Violation{{RuleID: "flip", Action: "warn", Matched: "not x, it's y"}}, "session-1", logPath)
 
 	fi, err := os.Stat(logPath)
 	if err != nil {

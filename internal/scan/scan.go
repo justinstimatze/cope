@@ -845,6 +845,9 @@ func shapes(redacted string, minCV float64) []Violation {
 		"the reply turns to account for its own errors, which is a story the reader did not ask for")...)
 	out = append(out, phrasePresence(raw, announcePhrase, "announced_length",
 		"the reply announces its own length rather than cutting it")...)
+	out = append(out, echoedHeading(redacted)...)
+	out = append(out, repeatedOpening(prose)...)
+	out = append(out, fragmentRun(prose)...)
 	return out
 }
 

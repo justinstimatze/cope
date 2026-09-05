@@ -117,6 +117,8 @@ type options struct {
 	displayIn   *bool
 	pretool     *bool
 	renderLane  *string
+	checkLane   *string
+	cardSample  *string
 }
 
 func registerFlags(fs *flag.FlagSet) *options {
@@ -148,6 +150,8 @@ func registerFlags(fs *flag.FlagSet) *options {
 		displayIn:   fs.Bool("display-preview", false, "read prose on stdin and print it as --display would rewrite it"),
 		renderFor:   fs.String("render-for", "", "comma-separated rule ids to render -render-arm against"),
 		renderLane:  fs.String("render-lane", "", "render -render-arm as the given lane sees it: interactive (default) or loop"),
+		checkLane:   fs.String("check-lane", "", "score -check in the given lane: interactive (default), loop, or external"),
+		cardSample:  fs.String("card-from-sample", "", "print a prompt for writing a card from this writing sample; - reads stdin"),
 	}
 }
 
@@ -243,13 +247,18 @@ func main() {
 		return
 	}
 
+	if *opt.cardSample != "" {
+		runCardFromSample(*opt.cardSample)
+		return
+	}
+
 	if *authorDoc {
 		fmt.Print(buildDocsPrompt(c, flag.CommandLine))
 		return
 	}
 
 	if *check != "" {
-		runCheck(c, *check, *minCV, *logPath)
+		runCheck(c, *check, *minCV, *logPath, *opt.checkLane)
 		return
 	}
 
@@ -279,7 +288,7 @@ func main() {
 	if len(v) == 0 {
 		return
 	}
-	report("cope:", v, in.SessionID, *logPath)
+	report("cope:", turn.Text, v, in.SessionID, *logPath)
 
 	if *block {
 		for _, x := range v {
@@ -663,7 +672,7 @@ func catchUp(c *scan.Card, in hookInput, minCV float64, logPath string) {
 	_ = s.Save(dir)
 	logTurn(dir, s, turn, ruleIDs(full), len(turn.Text))
 	if len(fresh) > 0 {
-		report("cope — the close of that reply:", fresh, in.SessionID, logPath)
+		report("cope — the close of that reply:", turn.Text, fresh, in.SessionID, logPath)
 	}
 }
 
@@ -933,7 +942,7 @@ func pruneMarkers(dir string) {
 // report prints the violations and appends them to the log. lead names which
 // pass found them, because the Stop hook and the catch-up on the next prompt
 // both report and the reader should know which reply is being described.
-func report(lead string, v []scan.Violation, session, logPath string) {
+func report(lead, text string, v []scan.Violation, session, logPath string) {
 	byRule := map[string]int{}
 	for _, x := range v {
 		byRule[x.RuleID]++
@@ -953,6 +962,7 @@ func report(lead string, v []scan.Violation, session, logPath string) {
 	for _, x := range v {
 		fmt.Fprintf(&b, "  [%s] %s\n      %q\n", x.RuleID, x.Why, x.Matched)
 	}
+	b.WriteString(scan.ClusterLine(text, v))
 	fmt.Fprint(os.Stderr, b.String())
 	logViolations(v, session, logPath)
 }

@@ -25,6 +25,9 @@ var RuleIDs = map[string]bool{
 	"cross_turn_repeat":    true,
 	"unverified_done":      true,
 	"loop_ask":             true,
+	"echoed_heading":       true,
+	"repeated_opening":     true,
+	"fragment_run":         true,
 }
 
 // GateDirective is one @gate line: a built-in rule this card is exempt from,

@@ -239,6 +239,9 @@ var shapeRules = []shapeFact{
 	{"cross_turn_repeat", "voicing", "", "a turn of phrase this reply shares with several earlier ones in the same session. The only rule that reads the window rather than the reply, so it cannot fire until a session has a history"},
 	{"unverified_done", "structure", "loop", "says the work is done with nothing on the page that could have shown it — no command, no count, no file"},
 	{"loop_ask", "structure", "loop", "an unattended run ends by asking, so the answer lands in a log and the next iteration reads the question as an instruction to itself"},
+	{"echoed_heading", "structure", "", "a heading of two or more content words whose first sentence below repeats every one of them, spending a line to say what the heading already said"},
+	{"repeated_opening", "voicing", "", "three or more sentences in one reply opening on the same two words. cross_turn_repeat reads the session window for a construction reused across turns; this one reads a reply against itself, and two is left alone because two is a rhythm"},
+	{"fragment_run", "voicing", "", "three consecutive sentences of five words or fewer with no finite verb in any of them. One fragment is emphasis and this repo's own register is full of them; a run of three is the staccato blind judges read as generated, and a card written to sound clipped declines it with @gate"},
 }
 
 type shapeFact struct {
@@ -343,7 +346,9 @@ func collectFacts(c *scan.Card, fs *flag.FlagSet) docsFacts {
 		},
 		Related: []relatedFact{
 			{"caveman", "https://github.com/JuliusBrussee/caveman",
-				"a separate project, by a different author, that compresses agent replies to cut output tokens — a third axis again. cope shapes prose, basanite tracks vocabulary, caveman shortens. Worth naming because a reader wanting fewer tokens rather than different structure should go there instead"},
+				"a separate project, by a different author, that compresses agent replies to cut output tokens — a fourth axis. cope shapes prose, basanite tracks vocabulary, humanizer rewrites, caveman shortens. Worth naming because a reader wanting fewer tokens rather than different structure should go there instead"},
+			{"humanizer", "https://github.com/blader/humanizer",
+				"a skill, by a different author, that rewrites AI-sounding prose against 35 patterns taken from Wikipedia's \"Signs of AI writing\", the page WikiProject AI Cleanup maintains. humanizer is called on a text and hands back a rewrite; cope fires at a hook, scores what was already written, and edits nothing. Its pattern list is the wider one, and a reader who wants a rewrite rather than a score should go there. The formatting patterns are where the two disagree on purpose: cope's bold_label rule banned humanizer's bold mini-headings until 52 blind pairs put bold and bullets among the three things that decided a reply for this repo's reader, and the rule was deleted rather than tuned"},
 			{"effigy", "https://github.com/justinstimatze/effigy",
 				"a character-card notation for game NPCs, used here off-label. Three of its blocks do what a prose gate needs: POSTPROC is regex rules with a warn action applied after generation, WRONG holds an anti-pattern beside its replacement, and TEST holds a named question with fail and pass examples, which is how a rule names a move instead of one wording of it"},
 			{"basanite", "https://github.com/justinstimatze/basanite",
@@ -744,7 +749,13 @@ card it documents is the argument against the card.
 // runCheck scores a prose file, or stdin when path is "-". It exists so the
 // repo's own documentation goes through the gate that reads every reply;
 // --backfill only understands transcript JSONL.
-func runCheck(c *scan.Card, path string, minCV float64, logPath string) {
+//
+// The lane is a parameter because the caller is not always a person reading the
+// output. A tool drafting a ticket and re-checking its own revisions wants the
+// same lane the PreToolUse hook scores in, or it spends the loop chasing the
+// four ending rules that lane drops — and a convergence loop that chases hits
+// the real hook would never report does not converge on anything.
+func runCheck(c *scan.Card, path string, minCV float64, logPath, lane string) {
 	var (
 		raw []byte
 		err error
@@ -759,8 +770,12 @@ func runCheck(c *scan.Card, path string, minCV float64, logPath string) {
 		os.Exit(1)
 	}
 
+	if err := scan.ValidLane(lane); err != nil {
+		fmt.Fprintf(os.Stderr, "cope-gate: %v\n", err)
+		os.Exit(1)
+	}
 	text := string(raw)
-	v := c.Check(text, minCV)
+	v := c.CheckLane(text, minCV, lane)
 	if len(v) == 0 {
 		fmt.Printf("%s: clean (%d chars)\n", path, len(text))
 		return
@@ -772,6 +787,7 @@ func runCheck(c *scan.Card, path string, minCV float64, logPath string) {
 			fmt.Printf("      ...%s...\n", x.Context)
 		}
 	}
+	fmt.Print(scan.ClusterLine(text, v))
 	logViolations(v, "check:"+path, logPath)
 }
 

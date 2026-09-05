@@ -937,3 +937,84 @@ every heading — produced prose indistinguishable from no card at all.
 **What this does not say.** A bolded-label count is a compliance proxy, picked
 because it is countable and unambiguous. Markup is not what a card is for. It says an instruction arrived. It says nothing about whether the writing
 got better, which is what the discrimination runs above are for.
+
+## Three rules from somebody else's list (2026-09-04)
+
+Every rule before these came from this machine's transcripts, a published
+measurement, or a blind read. These came from Wikipedia's "Signs of AI
+writing" — the page WikiProject AI Cleanup maintains — reached through
+`blader/humanizer`, a skill that rewrites prose against 35 of its patterns.
+That list is curated by editors reverting AI text on an encyclopedia: a far
+larger corpus than anything here, and a completely different reader. So it was
+treated as a candidate pool, and four rules were written from it before any of
+them were allowed to ship.
+
+**The corpus.** 2,477 transcripts from `~/.claude/projects`, every project on
+this machine, capped at 60MB per file for session diversity: 10,256 assistant
+replies, 27.3M characters. 69.2% of replies drew at least one hit.
+
+| rule | hits | per 1k replies |
+| --- | ---: | ---: |
+| `labelled_opening` | 7,001 | 682.6 |
+| `flip` | 5,137 | 500.9 |
+| `clause_symmetry` | 2,532 | 246.9 |
+| `short_close` | 2,159 | 210.5 |
+| **`repeated_opening`** | **1,284** | **125.2** |
+| `load_bearing` | 1,023 | 99.7 |
+| `ask_not_last` | 1,001 | 97.6 |
+| `paragraph_uniformity` | 898 | 87.6 |
+| `dangling_end` | 317 | 30.9 |
+| `forked_end` | 218 | 21.3 |
+| `worth_noting` | 131 | 12.8 |
+| `cross_turn_repeat` | 82 | 8.0 |
+| `buried_decision` | 76 | 7.4 |
+| **`fragment_run`** | **58** | **5.7** |
+| **`echoed_heading`** | **27** | **2.6** |
+| `loop_ask` | 12 | 1.2 |
+| `apology` | 8 | 0.8 |
+
+The three land at the top, the middle and the bottom of a distribution that
+already spans four orders of magnitude, which is the answer to whether they
+are worth their place: `repeated_opening` sits below three rules that have
+shipped for months, and `echoed_heading` sits above two.
+
+`repeated_opening` is worth a note on what it is actually measuring. Across the
+first hit of each flagged reply, one opener carries 57% of them: *let me*, three
+sentences of it in a paragraph. That is a phrase, and a phrase is basanite's
+axis — but the rule does not know the phrase, only that some phrase heads three
+sentences, and no card could enumerate the openers a writer will reach for. The
+structure is the rule and the phrase is what it happened to find.
+
+**The fourth was cut.** `unanchored_close` read the closing block for a forecast
+that names nothing — *the future looks bright*, *bodes well*, *sets you up
+nicely* — which is the source page's generic positive ending and the one move
+of the four the card already bans in prose. It found **1 hit in 10,256
+replies**, and widening it from the closing sentence to the whole closing block
+found the same one. The phrases are in the corpus: 62 occurrences in the raw
+text of 400 of these transcripts. They almost never land as the close. This
+repo cut `verdict_handoff` at 38 hits in 20.1M characters, and this was two
+orders of magnitude under that.
+
+The corpus is written under a card that bans the move, so 0.1 per 1k is a floor
+rather than an estimate. It is still a floor, and a rule that cannot clear one
+by an order of magnitude does not earn a line in the docs, an id in `RuleIDs`,
+and a paragraph in every reader's model of what the gate does.
+
+**A defect the measurement found on the way.** The first version of
+`repeated_opening` scored 138.8 per 1k. `Redact` blanks code spans in place and
+`splitSentences` trims, so a sentence written as `` `cope-gate --refresher`
+runs on every prompt`` arrived as a run of spaces and then its second word —
+and the rule read across the hole, keying on a pair that is not adjacent in the
+reply. It surfaced by reading `demo/README.precise.md`, which reported three
+sentences opening on "runs which". Splitting untrimmed and requiring the two
+words to be adjacent took the rate to 125.2, so roughly one hit in ten was this.
+
+**What was left where it was.** The phrase patterns — overused words, sales
+language, filler, stacked qualifiers — are basanite's, which measures a word
+against a baseline instead of banning it; this card moved `verdict_handoff`'s
+nine strings there in July for exactly that reason. The formatting patterns are
+declined on purpose. `bold_label` banned the same bold mini-headings humanizer's
+#16 does, until 52 blind pairs put bold and bullets among the three things that
+decided a reply for this repo's reader, and it was deleted rather than tuned.
+Lifting em dashes, bold, emoji, title case or curly quotes back would re-add
+what a measurement took out, on the authority of an encyclopedia's house style.

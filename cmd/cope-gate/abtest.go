@@ -101,15 +101,15 @@ func distBucket(d int) int {
 // what future ones measure.
 func ruleClass(id string) string {
 	switch id {
-	case "bold_label", "labelled_opening", "paragraph_uniformity":
+	case "bold_label", "labelled_opening", "paragraph_uniformity", "echoed_heading":
 		return "formatting"
-	case "flip", "clause_symmetry":
+	case "flip", "clause_symmetry", "fragment_run":
 		return "rhetoric"
 	case "dangling_end", "buried_decision", "ask_not_last", "forked_end":
 		return "ending"
 	case "apology", "self_postmortem", "announced_length":
 		return "deference"
-	case "cross_turn_repeat":
+	case "cross_turn_repeat", "repeated_opening":
 		return "repetition"
 	case "unverified_done", "loop_ask":
 		return "handoff"

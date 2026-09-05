@@ -118,7 +118,7 @@ func runPreTool(c *scan.Card, minCV float64, logPath string) {
 		if len(v) == 0 {
 			continue
 		}
-		writePreToolReport(&b, field, v)
+		writePreToolReport(&b, field, text, v)
 		logViolations(v, in.ToolName+":"+field, logPath)
 	}
 	if b.Len() == 0 {
@@ -144,7 +144,7 @@ func preToolPreamble(tool string) string {
 
 // writePreToolReport renders one field's violations, tallied by rule the way
 // the Stop hook's report does, so the same hit reads the same in both places.
-func writePreToolReport(b *strings.Builder, field string, v []scan.Violation) {
+func writePreToolReport(b *strings.Builder, field, text string, v []scan.Violation) {
 	byRule := map[string]int{}
 	for _, x := range v {
 		byRule[x.RuleID]++
@@ -163,4 +163,5 @@ func writePreToolReport(b *strings.Builder, field string, v []scan.Violation) {
 	for _, x := range v {
 		fmt.Fprintf(b, "  [%s] %s\n      %q\n", x.RuleID, x.Why, x.Matched)
 	}
+	b.WriteString(scan.ClusterLine(text, v))
 }

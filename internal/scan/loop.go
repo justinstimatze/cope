@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"fmt"
 	"regexp"
 	"sort"
 	"strings"
@@ -27,6 +28,23 @@ import (
 // other — scan reads prose and transcript reads JSONL — and one string in two
 // places is cheaper than a package that exists to hold it.
 const LaneLoop = "loop"
+
+// LaneInteractive is the default: a turn written to somebody about to answer
+// it. Named so a caller passing a lane by string has all three, rather than
+// two constants and an empty string standing for the third.
+const LaneInteractive = "interactive"
+
+// ValidLane rejects a lane nobody implements. CheckLane treats every unknown
+// string as interactive, which is the right default inside the binary and the
+// wrong one at a flag: a caller who typed --check-lane extenal would be told
+// nothing and would silently score four rules the real hook drops.
+func ValidLane(lane string) error {
+	switch lane {
+	case "", LaneInteractive, LaneLoop, LaneExternal:
+		return nil
+	}
+	return fmt.Errorf("unknown lane %q — one of %s, %s, %s", lane, LaneInteractive, LaneLoop, LaneExternal)
+}
 
 // needsAnswerableReader are the rules whose subject is a reader who can answer.
 // They are not wrong, they are asking a question some lanes do not pose — the

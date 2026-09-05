@@ -1,5 +1,83 @@
 # Changelog
 
+## Unreleased — the list somebody else curated
+
+- **Three rules mined from Wikipedia's "Signs of AI writing."** Every rule
+  before these came from this machine's transcripts, a published measurement, or
+  a blind read. These came from the page WikiProject AI Cleanup maintains,
+  reached through `blader/humanizer`, a skill that rewrites prose against 35 of
+  its patterns. The list is curated by editors reverting AI text on an
+  encyclopedia — a far larger corpus than anything measured here, and a
+  completely different reader — so it was treated as a candidate pool and not a
+  specification. `repeated_opening` flags three or more sentences in one reply
+  opening on the same two words, which is `cross_turn_repeat` pointed at a
+  single reply instead of the session window. `fragment_run` flags three
+  consecutive sentences of five words or fewer with no finite verb, which is the
+  staccato blind judges read as generated; one fragment is emphasis and this
+  repo's own register is built on it, so the run length is the rule.
+  `echoed_heading` flags a heading of two or more content words whose first
+  sentence repeats every one of them.
+
+- **A fourth was written and cut on the measurement.** `unanchored_close` read
+  the closing block for a forecast naming nothing — the future looks bright,
+  bodes well, sets you up nicely — which is the source page's generic positive
+  ending and the one move here the card already bans in prose. It found 1 hit in
+  10,256 replies, and widening it from the closing sentence to the whole closing
+  block found the same one. The phrases are in the corpus — 62 occurrences in
+  the raw text of 400 of those transcripts — but almost never as the close. This
+  repo cut `verdict_handoff` at 38 hits in 20.1M characters; this was two orders
+  of magnitude under that.
+
+- **A rule read across a redacted code span, and the demo render caught it.**
+  `Redact` blanks code in place and `splitSentences` trims, so a sentence
+  written as `` `cope-gate --refresher` runs on every prompt`` arrived as a run
+  of spaces and then its second word — and `repeated_opening` keyed on a pair
+  that is not adjacent in the reply. It surfaced by reading
+  `demo/README.precise.md`, which reported three sentences opening on "runs
+  which". Splitting untrimmed and requiring the two words to be adjacent took
+  the rate from 138.8 to 125.2 per 1k, so roughly one hit in ten was this.
+
+- **Most of the 35 were left where they were.** The phrase patterns — overused
+  words, sales language, filler, stacked qualifiers — are basanite's axis, which
+  measures a word against a baseline instead of banning it, and this card moved
+  `verdict_handoff`'s nine strings there in July for the same reason. The
+  formatting patterns are declined on purpose: `bold_label` banned humanizer's
+  bold mini-headings until 52 blind pairs put bold and bullets among the three
+  things that decided a reply for this repo's reader, and it was deleted rather
+  than tuned. Lifting them back would re-add what a measurement took out.
+
+- **Hits are clustered before they are printed.** Every rule fires on its own
+  and knows nothing about the others, so a report was a flat list and a reader
+  worked down it hit by hit. Three hits across three paragraphs are three small
+  edits; three hits inside one paragraph are one paragraph to write again, and
+  the flat list could not tell them apart. `scan.Clusters` reads the same
+  violations a second time and the Stop hook, `--check` and `--pretool` all
+  print a line naming any paragraph that drew three or more distinct rules. The
+  idea is the source page's: one em dash is punctuation, several tells together
+  are the evidence. Nothing about what fires or how it is scored changed.
+
+- **`--check-lane` scores a file as a lane sees it.** `--check` always ran the
+  interactive lane, so checking ticket prose meant chasing the four ending rules
+  the `PreToolUse` entry drops. `interactive`, `loop` and `external` are
+  accepted and anything else is an error rather than a silent fallback to the
+  default — the failure that guards against is a caller who typed `extenal` and
+  was told nothing.
+
+- **`--card-from-sample` writes a card from prose somebody already wrote.**
+  Every card here was written by hand, which is fine for the shipped one and
+  wrong for everybody else: authoring a card asks somebody to describe a voice
+  before they have used the tool, when what they can always do is point at three
+  paragraphs they like. The flag prints a prompt — the grammar, the budget, the
+  gateable rule ids, the sample, and the two checks that say whether the result
+  describes the sample or describes a card — the same shape `--author-docs`
+  already uses, because cope has no API client and wants none. The idea is
+  humanizer's, which takes a writing sample and follows it over its own style
+  rules; cope's version is durable rather than per-call, since the sample
+  becomes the card every later turn is scored against.
+
+- **`humanizer` named in related projects.** Four axes now: cope shapes prose,
+  basanite tracks vocabulary, humanizer rewrites, caveman shortens.
+
 ## v0.6.0 (2026-08-28) — the prose that leaves the conversation
 
 - **A `PreToolUse` hook scores external writes.** Until now cope could only see
