@@ -36,5 +36,7 @@ discriminate.html
 # local backlog — ideas and held-back work, not part of the release
 BACKLOG.md
 
-# The built hook binary. `make` and `go build -o cope-gate` both land it here.
-cope-gate
+# The built hook binary, at the repo root only. A bare `cope-gate` would also
+# match the cmd/cope-gate/ source directory and silently skip every new file
+# added to it.
+/cope-gate
