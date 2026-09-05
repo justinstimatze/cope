@@ -60,24 +60,9 @@ func Clusters(text string, v []Violation, min int) []Cluster {
 
 	var out []Cluster
 	for i, h := range hits {
-		ids := make([]string, 0, len(h))
-		repeated, most := "", 0
-		for id, n := range h {
-			ids = append(ids, id)
-			if n > most || (n == most && id < repeated) {
-				repeated, most = id, n
-			}
-		}
-		if len(ids) < min && most < min {
+		ids, repeated, ok := qualify(h, min)
+		if !ok {
 			continue
-		}
-		sort.Strings(ids)
-		// Breadth wins when both conditions hold. Three different rules on a
-		// paragraph says more about it than three hits of one, and naming the
-		// three is what tells a reader to rewrite the block rather than hunt a
-		// construction.
-		if most < min || len(ids) >= min {
-			repeated = ""
 		}
 		out = append(out, Cluster{
 			Rules:    ids,
@@ -145,6 +130,36 @@ func paraAt(text string, paras []span, matched string) int {
 		}
 	}
 	return -1
+}
+
+// qualify decides whether one paragraph's hits are a cluster, and which kind.
+//
+// repeated is the rule that landed min times or more on its own, and is empty
+// when the paragraph also has min distinct rules. Breadth wins when both hold:
+// three different rules says more about a paragraph than three hits of one, and
+// naming the three is what tells a reader to rewrite the block rather than hunt
+// a construction.
+func qualify(h map[string]int, min int) (ids []string, repeated string, ok bool) {
+	for id := range h {
+		ids = append(ids, id)
+	}
+	// Sorted before the scan, and the scan takes strictly greater, so two rules
+	// tied at the top resolve to the same one on every run. Map order would
+	// otherwise make the reported rule differ between two reads of one reply.
+	sort.Strings(ids)
+	most := 0
+	for _, id := range ids {
+		if h[id] > most {
+			repeated, most = id, h[id]
+		}
+	}
+	if len(ids) < min && most < min {
+		return nil, "", false
+	}
+	if len(ids) >= min {
+		return ids, "", true
+	}
+	return ids, repeated, true
 }
 
 // ClusterLine renders the clusters as one line each, or nothing.

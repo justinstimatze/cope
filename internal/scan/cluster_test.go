@@ -122,3 +122,15 @@ func TestClustersPrefersBreadthOverDensity(t *testing.T) {
 		t.Errorf("line does not name the three:\n%s", line)
 	}
 }
+
+// Two rules tied at the top must resolve the same way on every run: map order
+// would otherwise make one read of a reply name a different rule than the next.
+func TestClustersTieBreaksDeterministically(t *testing.T) {
+	h := map[string]int{"flip": 3, "clause_symmetry": 3}
+	for i := 0; i < 50; i++ {
+		_, repeated, ok := qualify(h, 3)
+		if !ok || repeated != "clause_symmetry" {
+			t.Fatalf("run %d: repeated=%q ok=%v", i, repeated, ok)
+		}
+	}
+}
