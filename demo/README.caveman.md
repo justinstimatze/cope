@@ -1,30 +1,30 @@
 # cope
 
-cope ships one opinionated card — on once installed, scoring two jobs at once, how a reply sounds and how a reply ends — and card sits in a file, so swap it or edit it; name comes from foundry, where cope means upper half of mould, half carrying shape cast into metal.
+cope ships one opinionated card — cope names upper half of foundry mould, half carrying shape cast into — card runs from install, scores two jobs at once, how prose sounds and how reply ends, and card sits in one file you edit or swap.
 
-Read [demo/README.md](demo/README.md) first. Every file there holds this README again, written from another card, same prompt and same facts, so card alone varies — read two side by side, learn more than rest of page teaches. [demo/README.claude-maximal.md](demo/README.claude-maximal.md) makes point in one glance, written from card instructing every tic this model measures with, and hard going on purpose.
+Read [demo/README.md](demo/README.md) first: every file in that directory holds this same README written again from different card, same prompt, same facts, so card stands as only difference between them, and reading two against each other shows what card does faster than rest of this page explains. [demo/README.claude-maximal.md](demo/README.claude-maximal.md) makes point in one glance, written from card that instructs every tic this model measures, hard going by design.
 
-## Two Things
+## Two jobs
 
-Voicing means sound of sentences: register, rhythm, diction, where flair gets license. Voicing lives in card. Swap card, swap every word of it. Voicing carries measured result — blind discrimination test.
+Voicing covers sound of sentences: register, rhythm, diction, what paragraph does with detail, where flair earns place. Voicing lives whole inside card — `VOICE`, `TRAITS`, `NEVER`, `WRONG`, `MES`, `POSTPROC`. Swap card, swap every word of it. Blind discrimination test measures this half.
 
-Structure means shape of reply as thing reader uses: where decision sits, whether ending gives "continue" something to point at, whether claim of done work carries proof. Structure compiles into binary. Same rules under every card.
+Structure covers shape reader must use: where decision sits, whether ending gives `continue` something to point at, whether ask lands last, whether claim of finished work carries anything that could show it. Structure compiles into binary. Same rules fire under every card, varying only by lane.
 
-One instance each, so split stays concrete. Sentence reaching for balanced two-beat — two clauses, near-equal length, content word echoed across joint — fails on voicing. Reply naming open problem in last paragraph, then stopping, leaving "continue" nothing to refer to — fails on structure. Same reply passes one axis, fails other. Keep axes apart for that reason.
+One instance each. Sentence reaching for balanced two-beat — two clauses, near-equal length, one content word repeated across joint — fails voicing. Reply naming open problem in last paragraph, then stopping, leaves `continue` nothing to point at, and fails structure. Same reply passes one axis and fails other, which gives reason to keep axes apart.
 
-Card reaches into structure half, two directions. Card declines built-in rule: `@gate <rule_id> off — <why>`, one per line in card header. `card/demo/lecturer.effigy` declines `clause_symmetry` and `dangling_end`, because its `VOICE` block asks for balanced landing and arriving close those two rules catch — card obeyed itself, gate marked it down. Card writes own structural rule: `@shape <id>: <selector> <predicate> — <why>`, one per line in card header. `card/demo/handoff.effigy` asserts `readable_cold` — `last paragraph words <= 60` — because its peak asks reader to enter cold and read last block only, and no built-in rule checks that block reads that way. Boundary: `@shape` counts words and sentences and asks whether block poses question, nothing more, so card wanting check outside that vocabulary and outside a `POSTPROC` regex has nowhere to put it. [MEASUREMENTS.md](MEASUREMENTS.md) holds run and reasons its numbers carry no further.
+Card reaches into structure two ways. Card declines built-in rule with `@gate <rule_id> off — <why>`, because card whose `VOICE` block asks for landing that `clause_symmetry` catches lost points for obeying itself. Card writes own rule with `@shape <id>: <selector> <predicate> — <why>`, because card promising reader can re-enter cold and read closing block alone had nowhere to state that promise as check.
 
-## Problem
+`@shape` vocabulary counts words and sentences, asks whether block poses question, and stops there. Check like `clause_symmetry` stays in compiled rules. Card wanting check outside that vocabulary and outside `POSTPROC` regex still finds nowhere to put it.
 
-Three parts. Where instruction sits. What instruction says. Failure no instruction touches.
+## Three failures
 
-Where instruction sits comes first, because most readers hold it backwards. Reader edits global `CLAUDE.md`, watches it fade, believes that file forms system prompt. It does not. It arrives as one message pinned to first turn, and conversation buries it under everything written after. Output style sits inside system prompt, and harness re-reminds model of it as conversation runs. Move one card between those two places, change no word of it, and that move accounts for most of why cope works. Measured — see [MEASUREMENTS.md](MEASUREMENTS.md). No counts here; reader wanting run follows link.
+Most readers arrive holding first failure backwards. Global `CLAUDE.md` looks like system prompt. It sits elsewhere: harness attaches it as one message on first turn, and conversation buries that message under everything written after. Output style goes into system prompt itself, and harness re-reminds model of style as conversation runs. Move one card between those two places, change no word of card, and prose changes. That move explains most of why cope works. Run and figures sit in [MEASUREMENTS.md](MEASUREMENTS.md).
 
-Instruction alone leaves phrasing untouched. Global `CLAUDE.md` banning "not A, it's B" flip gets read every turn. Flip still landed twice in session that built this, while ban formed topic of session. Name surface form, move slides into variant. That covers voicing side.
+Second failure: instruction alone leaves phrasing where it stood. Global `CLAUDE.md` banning "not A, it's B" flip gets read every turn. Flip still appeared twice in session that built this repo, while ban held topic of that session. Name one surface form, move slides into variant.
 
-Third part names no phrasing problem at all. Ending leaving reader nothing to answer costs whole round trip. No instruction bans it, because no habit of wording produces it.
+Third failure belongs to structure, and no instruction reaches it. Ending that hands reader nothing to answer costs whole round trip. Nobody wrote that ending as phrasing habit, so no ban on phrasing removes it.
 
-Flip stays anecdote about one rule. Claim rests elsewhere: blind discrimination test, where reader sees only a voice's own description of itself and picks which of two replies came from it. [MEASUREMENTS.md](MEASUREMENTS.md) holds rate and caveats.
+Flip stands as anecdote about one rule. Claim rests on blind discrimination test: reader sees only voice's own description of itself, then picks which of two replies came from that voice. [MEASUREMENTS.md](MEASUREMENTS.md) holds rate and caveats.
 
 ## Install
 
@@ -34,17 +34,17 @@ cope-gate --setup
 # then: /config -> Output style -> claude_voice
 ```
 
-First command installs binary. Second command does whole install: emits output style, wires three hooks into `~/.claude/settings.json` with absolute paths, prints one step left. `--setup` backs settings file up first, adds only what stays missing so second run changes nothing, leaves every other key alone including other tools' hooks on same events, and refuses to touch settings file that fails to parse. `--setup --dry-run` prints what it would change, writes nothing.
+First command builds `cope-gate`. Second command does whole install: emits output style, wires three hooks into `~/.claude/settings.json` with absolute paths, prints one step left. `--setup` backs settings file up first, adds only missing keys so second run changes nothing, leaves every other key alone including other tools' hooks on same events, and refuses to touch settings file that fails to parse. `--setup --dry-run` prints what it would change and writes nothing.
 
-Rather not let a tool edit your settings? `cope-gate --output-style` writes loaded card to `~/.claude/output-styles/<card>.md`, and `COPE_CARD=<name>` in front of it emits another one.
+Then pick style under `/config` -> Output style. Entry reads `claude_voice`, shipped card's id, and never word cope — scan that menu for cope, find nothing, walk away with tool switched off.
 
-Now menu choice. Pick style under `/config` -> Output style. Entry reads `claude_voice` — shipped card's id, not word cope. Say name out loud, because reader scanning that menu for cope finds nothing. Standalone `/output-style` command went away in Claude Code v2.1.91, so `/config` carries it; same thing sets as `"outputStyle": "claude_voice"` in `.claude/settings.local.json`.
+Prefer settings file untouched? `cope-gate --output-style` writes loaded card to `~/.claude/output-styles/<card>.md`, and `COPE_CARD=<name>` in front of it emits different card. Wire hooks by hand after that.
 
-Style gets read once at session start. New selection, or freshly emitted card, applies at next session or after `/clear`. Running conversation shows no change, and that means nothing broke.
+Claude Code reads style once at session start. New selection or re-emitted card applies at next session, or after `/clear`.
 
-Card goes into output style rather than into a hook because output style lands at end of system prompt and harness re-reminds model of it mid-conversation.
+Output style sits at end of system prompt, where harness keeps reminding model of it. Card lands there for that reason.
 
-Hooks come next. Card no longer arrives through one.
+Hooks block of `~/.claude/settings.json`:
 
 ```json
 {
@@ -76,148 +76,150 @@ Hooks come next. Card no longer arrives through one.
 }
 ```
 
-That block forms hooks block of `~/.claude/settings.json`. `Stop` buys scoring of reply after it lands. `UserPromptSubmit` buys mid-session restatement of rules that keep firing, which file written once cannot do. `PreToolUse` buys score on prose an external write posts. Voice works without any of them; hooks form measurement half.
+`Stop` buys score on every reply after writing. `UserPromptSubmit` buys mid-session restatement of rules that keep firing, which file written once cannot do. Voice works without both hooks; hooks carry measurement half.
 
-Commands above assume `go install` target directory sits on `PATH` in environment hook runs in. Hook doing nothing silently usually wants absolute path instead. Clone builds with `make install` and needs no effigy checkout, since `card/rules.json` ships committed and compiled in. `--inject` remains as superseded delivery for anyone wanting old path, and stands down on its own once a cope output style goes active.
+Commands above assume `go install` target directory on `PATH` inside environment where hook runs. Hook doing nothing at all usually wants absolute path instead. Clone builds with `make install` and needs no effigy checkout, since `card/rules.json` ships committed and compiled in. `--inject` survives as superseded delivery for anyone wanting old path, and stands down on its own when cope output style runs.
 
-## Writing In Another Voice
+## Writing in another voice
 
-Gate reads `.effigy` directly. Card works as written — no Python, no effigy checkout. Drop card in `$XDG_CONFIG_HOME/cope/cards`, reach it with `--card <name>` or `COPE_CARD`. `--rules` takes path from anywhere. `make cards` installs demo set. Name resolving to nothing raises error and injects nothing, rather than session writing shipped voice while config names another.
+Gate reads `.effigy` directly, so card works as written — no Python, no effigy checkout. Drop card in `$XDG_CONFIG_HOME/cope/cards`, reach it with `--card <name>` or `COPE_CARD`. `--rules` takes path from anywhere. `make cards` installs demo set. Name resolving to nothing raises error and injects nothing, rather than letting session write in shipped voice while config names another.
 
-Read `card/demo/lecturer.effigy` first. It parts from shipped card on register alone, and discrimination run measured exactly that pair. Card changes voicing, per split named above under two things; structure stays fixed. Numbers live in [MEASUREMENTS.md](MEASUREMENTS.md).
+Read `card/demo/lecturer.effigy` first. It differs from shipped card on register alone, and discrimination run measured exactly that pair. Card changes voicing, described under two jobs above; structure holds still. [MEASUREMENTS.md](MEASUREMENTS.md) carries numbers.
 
-Shortest route to seeing what a card does, without writing one: [demo/README.md](demo/README.md). Every file under `demo/` holds this README written again from another card, same prompt, same facts, voice alone varying.
+Shortest route to seeing what card does without writing one: [demo/README.md](demo/README.md), where every file holds this page rewritten from different card, same prompt, same facts.
 
-One exception in that directory: `card/demo/handoff.effigy` states a hypothesis, not a voice. It keeps shipped card's handoff rules and drops everything about prose, and it runs through `make pairs` against full card rather than rendering a page. `make cards` installs it with rest, so reader listing cards finds it there and should know it names no register to write in.
+`card/demo/handoff.effigy` breaks pattern in that directory: hypothesis rather than voice, keeping shipped card's handoff rules and dropping everything about prose, meant for `make pairs` against full card rather than for rendering. `make cards` installs it beside rest, so anyone listing cards finds it there and should skip it as register.
 
-## What Hooks Do Differently
+## What hooks add
 
-`Stop` runs `cope-gate`, scores reply just written, appends which rules fired to session's rolling state, and appends one record per violation to log.
+`Stop` scores reply just written, appends which rules fired to session's rolling state, and appends one record per violation to log.
 
-`UserPromptSubmit` runs `cope-gate --refresher`. It reads rolling state — not violations log — and injects card items gated on what keeps firing, naming counts. Session with no history yet falls back to standing `CONTINUE TEST`. Refresher stays quiet until last injection ages past `--refresh-every`. Mid-session text gets chosen from measured output rather than fixed in advance, which pasted `CLAUDE.md` cannot do. One mechanism, no guarantee: A/B in repo separates variants of refresher window, not refresher from nothing.
+`UserPromptSubmit` reads that rolling state — never violations log — and injects card items gated on what keeps firing, naming counts. Session with no history yet falls back to standing `CONTINUE TEST`. Hook stays quiet until last injection ages past `--refresh-every`.
 
-`PreToolUse` runs `cope-gate --pretool`. It scores `description`, `body` or `content` field an external write posts, matched against Linear save tools named in settings block. Warn-only: it returns `additionalContext`, never a `permissionDecision`, so call goes through and model learns what prose scored. It writes no session state. It scores in external lane, dropping `ask_not_last`, `buried_decision`, `dangling_end`, `forked_end`.
+Mid-session text therefore comes from measured output rather than from fixed paste. That names one mechanism, and nothing more: A/B run in this repo does not separate refresher from no refresher.
 
-## Why Effigy Notation
+## Why effigy notation
 
-[effigy](https://github.com/justinstimatze/effigy) states character cards for game NPCs. cope uses it off-label. Three of its blocks do what prose gate needs: `POSTPROC` holds regex rules with warn action applied after generation, `WRONG` holds anti-pattern beside its replacement, and `TEST` holds named question with fail and pass examples — so a rule names a move rather than one wording of it.
+[effigy](https://github.com/justinstimatze/effigy) writes character cards for game NPCs. cope uses it off-label, since three effigy blocks do what prose gate needs: `POSTPROC` holds regex rules with warn action applied after generation, `WRONG` holds anti-pattern beside its replacement, and `TEST` holds named question with fail and pass examples — which lets rule name move instead of one wording of it.
 
-[basanite](https://github.com/justinstimatze/basanite) answers same problem other way round, and suits reader finding this one too blunt. cope bans: rule fires or rule stays silent, card says never, register locks once you pick it. basanite measures — lemma frequency against baseline over real transcripts — and reports what you lean on lately, leaving judgement to you. Its own README calls that awareness rather than prohibition. Which one fits asks about mood more than correctness: heavy hand suits a habit annoying you today, moving measurement suits watching drift rather than legislating it. They compose — different hooks, no shared state — so run both.
+[basanite](https://github.com/justinstimatze/basanite) answers same problem from other end, and suits anyone finding this one too blunt. cope bans: rule fires or stays quiet, card says never, register locks once you pick card. basanite measures instead — lemma frequency against baseline over real transcripts — so it reports what you lean on lately and leaves judgement with you. Its own README calls that awareness rather than prohibition. Choice tracks mood more than correctness: heavy hand suits habit annoying you today, moving measurement suits watching drift. Both compose, different hooks, no shared state, so run both.
 
-Third project, different axis again: [caveman](https://github.com/JuliusBrussee/caveman), by another author, compresses agent replies to cut output tokens. cope shapes prose, basanite tracks vocabulary, caveman shortens. Reader wanting fewer tokens rather than different structure goes there.
+[humanizer](https://github.com/blader/humanizer) rewrites AI-sounding prose against 35 patterns drawn from Wikipedia's "Signs of AI writing", page WikiProject AI Cleanup maintains. Call humanizer on text, get rewrite back. cope fires at hook, scores what already exists, edits nothing. humanizer holds wider pattern list; anyone wanting rewrite rather than score goes there. Two tools disagree on formatting by design: cope's `bold_label` rule banned humanizer's bold mini-headings until 52 blind pairs put bold and bullets among three things deciding reply for this repo's reader, so cope deleted rule rather than tuning it.
+
+[caveman](https://github.com/JuliusBrussee/caveman) compresses agent replies to cut output tokens — fourth axis, separate project, different author. cope shapes prose, basanite tracks vocabulary, humanizer rewrites, caveman shortens. Anyone wanting fewer tokens rather than different structure goes there instead.
 
 ## Rules
 
-Voicing rules, from shipped card and from Go:
+Voicing rules:
 
-- `flip` — not-A-but-B flip in its common surface forms, including not-only-but-also and inverted "A, not B". The Economist measured this family across 55,940 sentences on 2026-07-30 and put Claude at top of it among every writer in study, human or machine. Action: warn.
-- `load_bearing` — reflexive intensifier for important or central, at 25.6 per 1k heaviest measured lean in this register. Say what thing carries instead. Action: warn.
-- `worth_noting` — announces that something deserves attention instead of letting it earn attention, at 6.5 per 1k. Action: warn.
-- `clause_symmetry` — comma- or semicolon-joined clauses of near-equal length repeating a content word across joint: balanced two-beat.
+- `flip` — not-A-but-B flip in common surface forms, including not-only-but-also and inverted "A, not B". The Economist measured this family across 55,940 sentences on 2026-07-30 and put Claude top of it among every writer in study, human or machine.
+- `load_bearing` — reflexive intensifier standing in for important or central, at 25.6 per 1k heaviest measured lean in this register. Say what thing carries instead.
+- `worth_noting` — announces that something deserves attention instead of letting it earn attention, at 6.5 per 1k.
+- `clause_symmetry` — comma- or semicolon-joined clauses of near-equal length repeating content word across joint: balanced two-beat.
 - `apology` — reply performs contrition instead of stating correction and moving on.
 - `self_postmortem` — reply turns to account for its own errors, story reader never asked for.
 - `announced_length` — reply announces own length rather than cutting it.
-- `cross_turn_repeat` — turn of phrase this reply shares with several earlier ones in same session. Only rule reading window rather than reply, so it stays silent until session holds history.
+- `cross_turn_repeat` — turn of phrase this reply shares with several earlier replies in same session. Only rule reading window rather than reply, so it stays silent until session grows history.
+- `repeated_opening` — three or more sentences in one reply opening on same two words. `cross_turn_repeat` reads session window for construction reused across turns; this one reads reply against itself, and two openings pass, since two makes rhythm.
+- `fragment_run` — three consecutive sentences of five words or fewer with no finite verb in any. One fragment marks emphasis, and this repo's own register runs full of them; run of three gives staccato blind judges read as generated. Neither clipped demo card trips it, so neither declines it; card wanting that run says so with `@gate`.
 
-Structure rules, all compiled:
+Structure rules:
 
-- `labelled_opening` — prose paragraph opening on short verbless fragment rest of it unpacks; ordinal counts as label. List blocks and paragraphs under twelve words skip. Bolded form skips too — card dropped its `bold_label` rule in July 2026 after blind readers named bold and bullets as something they wanted, so opener written as bold label stays unpoliced on purpose.
-- `paragraph_uniformity` — four or more prose paragraphs whose lengths carry coefficient of variation below `--min-cv`.
+- `labelled_opening` — prose paragraph opening on short verbless fragment that rest unpacks; ordinal counts as label. Skips list blocks, skips paragraphs under twelve words, skips bolded form — card dropped `bold_label` in July 2026 after blind readers named bold and bullets as things they wanted, so bold opener stays deliberately unpoliced.
+- `paragraph_uniformity` — four or more prose paragraphs whose lengths hold coefficient of variation below `--min-cv`.
 - `ask_not_last` — question or request for reader sitting in earlier block while reply carries on past it.
-- `dangling_end` — open problem named in closing blocks with no question, offer, or explicit all-clear anywhere, leaving "continue" nothing to refer to.
+- `dangling_end` — open problem named in closing blocks with no question, offer, or explicit all-clear anywhere, leaving `continue` nothing to point at.
 - `buried_decision` — open problem landing after last question or offer, burying decision point above it.
-- `forked_end` — two or more things to act on in closing blocks with nothing marking which comes first, so answering "continue" means picking one. Sentences opening on "or", questions inside list items and table cells, and bare deference tags like "your call" read as continuing decision above rather than adding another.
-- `unverified_done` — says work stands done with nothing on page that could have shown it: no command, no count, no file.
-- `loop_ask` — unattended run ends by asking, so answer lands in a log and next iteration reads question as instruction to itself.
+- `forked_end` — two or more things to act on in closing blocks with nothing marking which comes first, so answering `continue` means picking one. Sentences opening on "or", questions inside list items and table cells, and bare deference tags like "your call" read as continuing decision above rather than adding another.
+- `unverified_done` — says work finished with nothing on page that could show it: no command, no count, no file.
+- `loop_ask` — unattended run ends by asking, so answer lands in log and next iteration reads question as instruction to itself.
+- `echoed_heading` — heading of two or more content words whose first sentence below repeats every one, spending line to say what heading said.
 
-Grouping tells reader something usable about implementation. `POSTPROC` pattern matches a span of text, so it describes wording and nothing else. Every voicing rule needing more than a pattern got written in Go beside structure rules. Shipped cope card therefore carries 3 `POSTPROC` rules. Reader expecting long list of banned phrases finds that list in basanite instead, by design: cope bans, basanite measures.
+Grouping tells implementers something usable. `POSTPROC` pattern matches span of text, so pattern describes wording and nothing beyond wording. Every voicing rule needing more than pattern went into Go beside structure rules. Shipped card therefore carries 3 `POSTPROC` rules. Anyone expecting long list of banned phrases should read basanite instead, where that list lives on purpose.
 
-Structure rules vary in one place — not by card, by who reads turn. Lanes:
+Structure rules vary in one way only, by lane — by who reads turn, never by card.
 
-- interactive lane — every turn that runs outside a loop. Somebody waits at terminal and ending carries their next decision.
-- loop lane — prompt opening turn was `/loop` or `/goal`, or sentinel a dynamic-pacing loop sends itself. Drops `ask_not_last`, `buried_decision`, `dangling_end`, `forked_end`. Adds `unverified_done`, `loop_ask`. Nobody reads yet. Report correctly naming what it left open and stopping would fail three of dropped rules, and question in it lands in log where next iteration reads it as instruction to itself. Claim check replaces them: report saying work stands done has to say what it ran.
-- external lane — `PreToolUse` entry scoring prose an external write posts, rather than a reply. Drops `ask_not_last`, `buried_decision`, `dangling_end`, `forked_end`, swaps nothing in. Ticket holds a reader and no ending they answer. Somebody reads it days later, outside session, and that condition describes every rule surviving drop.
+Interactive lane covers every turn that no loop opened, since somebody waits at terminal and ending decides what happens next.
+
+Loop lane covers turns opened by `/loop` or `/goal`, or by sentinel that dynamic-pacing loop sends itself. Loop drops `ask_not_last`, `buried_decision`, `dangling_end`, `forked_end`, and adds `unverified_done` and `loop_ask`. Nobody reads yet: report that correctly names what it left open and stops would fail three dropped rules, and question inside it lands in log where next iteration reads question as instruction to itself. Claim check replaces them — report saying work finished has to say what ran.
+
+External lane covers prose that `--pretool` scores before external write posts it. External drops same four and swaps nothing in. Ticket has reader and no ending that reader can answer, read days later by somebody outside session, which names condition every surviving rule was written for.
+
+Reports cluster hits. `Stop`, `--check` and `--pretool` all print clusters. Three or more distinct rules landing on one paragraph gives breadth. One rule landing on one paragraph three or more times gives density. Both conditions holding, report prints breadth, since naming three rules tells reader to rewrite block rather than hunt one construction. Every rule fires alone and knows nothing of others, so flat report leaves reader working down hit by hit; three hits across three paragraphs make three small edits, three hits inside one paragraph make one paragraph to write again. Density half rests on measurement: `--check` over 107 tracked documents produced 114 `flip` hits, seven worth changing, and every one of seven showed as three in paragraph rather than as anything about form. Three sets floor on both conditions, since two rules on paragraph reads ordinary and two hits of one rule reads as coincidence reader spots unaided. Clustering changes nothing about what fires or how score works.
 
 ## Flags
 
 | flag | default | does |
 | --- | --- | --- |
-| `--ab` | `false` | rotate refresher windows through each variant in turn, recording which one a turn was written under |
-| `--ab-arms` | (empty) | comma-separated variants to rotate through, implying `-ab` (default inject,hold; positive is the third) |
-| `--ab-report` | (empty) | read a turn log and report how each variant did; `-` reads the default path |
-| `--author-docs` | `false` | print a prompt for writing this repo's docs: the card, the introspected facts, the sections |
-| `--backfill` | (empty) | score every assistant turn in this transcript and exit |
-| `--block` | `false` | exit 2 on a violation whose action is reject (default warn-only) |
-| `--card` | (empty) | name of an installed card to write in, from the cards directory; also `$COPE_CARD` |
-| `--cards` | `false` | list the installed cards with the aim each one states, and exit |
-| `--check` | (empty) | score a prose file against the card and exit; `-` reads stdin |
-| `--describe` | `false` | print the card's voice as a target to recognise: the aim and the register, without the machinery |
-| `--display` | `false` | MessageDisplay entry: rewrite what the reader sees, leaving the transcript alone |
-| `--display-preview` | `false` | read prose on stdin and print it as `--display` would rewrite it |
-| `--dry-run` | `false` | with `--setup`, print what would change and write nothing |
-| `--inject` | `false` | print the card as prompt text for a SessionStart hook |
+| `--ab` | `false` | rotate refresher windows through each variant in turn, recording which variant wrote each turn |
+| `--ab-arms` | (empty) | comma-separated variants to rotate through, implying `-ab` (default `inject,hold`; `positive` third) |
+| `--ab-report` | (empty) | read turn log, report how each variant did; `-` reads default path |
+| `--author-docs` | `false` | print prompt for writing this repo's docs: card, introspected facts, sections |
+| `--backfill` | (empty) | score every assistant turn in this transcript, exit |
+| `--block` | `false` | exit 2 on violation carrying action `reject` (default warn-only) |
+| `--card` | (empty) | name of installed card to write in, from cards directory; also `$COPE_CARD` |
+| `--card-from-sample` | (empty) | print prompt for writing card from this writing sample; `-` reads stdin |
+| `--cards` | `false` | list installed cards with aim each one states, exit |
+| `--check` | (empty) | score prose file against card, exit; `-` reads stdin |
+| `--check-lane` | (empty) | score `--check` in given lane: `interactive` (default), `loop`, or `external` |
+| `--describe` | `false` | print card's voice as target to recognise: aim and register, without machinery |
+| `--display` | `false` | `MessageDisplay` entry: rewrite what reader sees, leaving transcript alone |
+| `--display-preview` | `false` | read prose on stdin, print it as `--display` would rewrite it |
+| `--dry-run` | `false` | with `--setup`, print what would change, write nothing |
+| `--inject` | `false` | print card as prompt text for `SessionStart` hook |
 | `--log` | `$HOME/.local/state/cope/violations.jsonl` | append violations here; empty disables |
 | `--min-cv` | `0.35` | flag paragraph-length coefficient of variation below this |
-| `--output-style` | `false` | write the card to `~/.claude/output-styles` as a Claude Code output style, which puts it in the system prompt rather than in one turn-zero message |
-| `--output-style-dir` | (empty) | directory to write the output style into (default `~/.claude/output-styles`) |
-| `--pretool` | `false` | PreToolUse entry: score the prose an external write is about to post, warn-only |
-| `--refresh-every` | `30m0s` | minimum age of the last card or refresher injection before the refresher fires |
-| `--refresher` | `false` | UserPromptSubmit entry: inject the compact reminder once the last injection has aged |
-| `--render-arm` | (empty) | print the mid-session reminder one variant would inject, and exit |
+| `--output-style` | `false` | write card to `~/.claude/output-styles` as Claude Code output style, which puts card in system prompt rather than in one turn-zero message |
+| `--output-style-dir` | (empty) | directory to write output style into (default `~/.claude/output-styles`) |
+| `--pretool` | `false` | `PreToolUse` entry: score prose that external write posts next, warn-only |
+| `--refresh-every` | `30m0s` | minimum age of last card or refresher injection before refresher fires |
+| `--refresher` | `false` | `UserPromptSubmit` entry: inject compact reminder once last injection ages |
+| `--render-arm` | (empty) | print mid-session reminder one variant would inject, exit |
 | `--render-for` | (empty) | comma-separated rule ids to render `-render-arm` against |
-| `--render-lane` | (empty) | render `-render-arm` as the given lane sees it: interactive (default) or loop |
-| `--rules` | (empty) | read the card from this `.effigy` or `.json` file instead of the one built into the binary |
-| `--setup` | `false` | emit the output style and wire the hooks, then print the one step left |
-| `--version` | `false` | print version and exit |
+| `--render-lane` | (empty) | render `-render-arm` as given lane sees it: `interactive` (default) or `loop` |
+| `--rules` | (empty) | read card from this `.effigy` or `.json` file instead of one built into binary |
+| `--setup` | `false` | emit output style, wire hooks, print one step left |
+| `--version` | `false` | print version, exit |
 
-## What Lands On Disk
+## What lands on disk
 
-| path | mode | holds |
-| --- | --- | --- |
-| `$XDG_STATE_HOME/cope/violations.jsonl` | `0600` | one JSON record per violation, carrying matched text and about 70 characters either side |
-| `$XDG_STATE_HOME/cope/refresher-<session-id>` | `0600` | empty file whose mtime forms refresher clock |
-| `$XDG_STATE_HOME/cope/session-<session-id>.json` | `0600` | rolling record mid-session injection gets chosen from: turn count, characters, which rules fired over 20-turn window. No prose, only rule names and counts |
+`$XDG_STATE_HOME/cope/violations.jsonl`, mode `0600`, holds one JSON record per violation. Record carries matched text plus roughly 70 characters either side, so log quotes your replies back at you.
 
-Log quotes replies back. Plainly: matched text plus surrounding context lands on disk in `violations.jsonl`. Session state stores no prose.
+`$XDG_STATE_HOME/cope/refresher-<session-id>`, mode `0600`, holds nothing; its mtime runs refresher clock.
 
-## Editing The Card
+`$XDG_STATE_HOME/cope/session-<session-id>.json`, mode `0600`, holds rolling record that mid-session injection draws from: turn count, characters, which rules fired over 20-turn window. Rule names and counts only, no prose.
 
-effigy owns `.effigy` grammar. `make rules` regenerates `card/rules.json`. `make check-rules` runs in CI, so enforced rules and injected rules cannot drift apart.
+## Editing card
 
-`NEVER` budget stands at 10. Anything over budget gets reported at load rather than dropped in silence. Budget charges against each injection separately, not against card file: one path prints always-on rules, refresher prints evidence-gated ones, and no code path renders their union. So card may hold more `NEVER` rules in total than budget and still stay healthy. Rules that really do get discarded unrendered appear in a list of their own, empty under a healthy card.
+effigy owns `.effigy` grammar. `make rules` regenerates `card/rules.json`. CI runs `make check-rules`, so enforced rules and injected rules cannot drift apart.
 
-Two card-authored forms.
+`NEVER` budget stands at 10. Rules over budget get reported at load rather than dropped in silence. Budget charges each injection separately rather than charging card file: `SessionStart` prints always-on rules, refresher prints evidence-gated ones, and no code path renders union of both — so card holding more `NEVER` rules in total than budget stays healthy.
 
-`@gate <rule_id> off — <why>`, one per line in card header. `@shape <id>: <selector> <predicate> — <why>`, one per line in card header.
+Card writes rules two ways.
 
-`@shape` vocabulary, exactly:
+`@gate <rule_id> off — <why>`, one per line in card header. Id must name rule gate already has. `card/demo/lecturer.effigy` declines `clause_symmetry` and `dangling_end`, since its `VOICE` block asks for balanced landing and arriving close that those two rules catch.
 
-- selectors: `first paragraph`, `last paragraph`, `every paragraph`, `some paragraph`, `reply`
-- predicates: `words <= N`, `words >= N`, `sentences <= N`, `sentences >= N`, `asks`, `does not ask`
+`@shape <id>: <selector> <predicate> — <why>`, one per line in card header. Id must collide with nothing gate already has. Selectors: `first paragraph`, `last paragraph`, `every paragraph`, `some paragraph`, `reply`. Predicates: `words <= N`, `words >= N`, `sentences <= N`, `sentences >= N`, `asks`, `does not ask`. `card/demo/handoff.effigy` asserts `readable_cold` — `last paragraph words <= 60` — since its peak asks reader to re-enter cold and read closing block alone, and no built-in rule checks whether that block reads that way. 60 comes from measurement: across 43,155 assistant replies, closing block runs 33 words at median and 56 at p90.
 
-`@gate` takes rule id gate already holds. `@shape` takes id colliding with none. Wrong id gets reported at load rather than ignored. Reason after dash stays required in both forms, since rule a card wrote and rule a card refused read as unreviewable without one. Declined rule still runs; only this card's score drops it, so backfill still reports what it would have caught. `@shape` violation reports in card's own words rather than in any sentence binary supplies.
-
-`card/demo/handoff.effigy` shows the assertion form with a measured number: `readable_cold`, `last paragraph words <= 60`, and 60 comes from 43,155 assistant replies where closing block runs 33 words at median and 56 at p90.
+Wrong id gets reported at load, never ignored. Reason after dash stays required in both forms, since rule card wrote and rule card refused read equally unreviewable without one. Declined rule still runs — only that card's score drops it — so `--backfill` still reports what declined rule would have caught. `@shape` violation prints in card's own words rather than in any sentence binary supplies.
 
 ## Calibrating
 
-`cope-gate --backfill` scores whole session transcript at once, and that command chose the rules. `tools/backfill-sweep.sh` runs it over N largest transcripts found anywhere under `~/.claude/projects` — not one per project.
+`cope-gate --backfill` scores whole session transcript at once. Rules got chosen that way. `tools/backfill-sweep.sh` runs `--backfill` over N largest transcripts found anywhere under `~/.claude/projects`, which differs from one transcript per project.
 
-Watch hits per character. Share of turns hit tracks how long turns ran, so it measures length more than prose. [MEASUREMENTS.md](MEASUREMENTS.md) holds rates.
+Watch hits per character. Share of turns hit tracks how long turns ran, so that second number moves for reasons outside prose. [MEASUREMENTS.md](MEASUREMENTS.md) holds rates.
 
-## Known Limits
+## Known limits
 
-`labelled_opening` runs no tagger. It matches a fragment shape, so it misfires on prose a tagger would clear.
+Axis split organises limits too.
 
-`ask_not_last` says nothing about order among several asks. It sees one ask sitting early and reply continuing past it.
+`labelled_opening` runs no tagger, so it flags shapes rather than parts of speech. `ask_not_last` says nothing about order among several asks.
 
-Hit rate runs roughly four fifths structure. A/B run found that four fifths tracks what a reply was for rather than how it got written, so it describes output and judges nothing. Discrimination test holds judgement, and covers voicing only.
+Hit rate runs roughly four fifths structure. A/B run found that four fifths tracks what reply was for rather than how somebody wrote it, so hit rate describes output and judges nothing. Judgement lives in discrimination test, which covers voicing alone.
 
-Largest limit sits where two things above named it. Card declines a built-in rule and writes one of its own, and vocabulary it writes in counts words and sentences and asks whether block poses question. Compiled rules remain only home for a check like `clause_symmetry`. Card wanting something outside that vocabulary and outside a `POSTPROC` regex still finds nowhere to put it.
+Largest limit sits where two jobs above already put it, and it stands smaller now than before: card declines built-in rule and writes one of its own, in vocabulary counting words and sentences and asking whether block poses question. Compiled rules stay only home for check like `clause_symmetry`. Card wanting check outside that vocabulary and outside `POSTPROC` regex still finds nowhere to put it.
 
-Both directions amount to card marking own homework. Decline lowers that card's score; assertion raises it. Read both with reason attached — which is why syntax demands one.
-
-[MEASUREMENTS.md](MEASUREMENTS.md) holds runs and caveats.
+Both directions leave card marking own homework. Decline lowers that card's score; assertion raises it. Read both with reason attached — which explains why syntax demands one. [MEASUREMENTS.md](MEASUREMENTS.md) holds rest.
 
 ## Layout
 
@@ -228,15 +230,13 @@ Both directions amount to card marking own homework. Decline lowers that card's 
 | `card/demo/` | other cards, each written to sound like something else |
 | `cmd/cope-gate/` | hook binary |
 | `internal/scan/` | structure rules, card's regex rules, card renderer |
-| `internal/effigy/` | `.effigy` reader, so a card works as written |
-| `internal/transcript/` | Claude Code JSONL reader, and which lane a turn came from |
-| `replay/` | blind-pairs and discrimination harnesses, plus own README |
+| `internal/effigy/` | `.effigy` reader, so card works as written |
+| `internal/transcript/` | Claude Code JSONL reader, and which lane wrote each turn |
+| `replay/` | blind-pairs and discrimination harnesses, plus their own README |
 | `demo/` | this README written again under each demo card |
 | `tools/` | card compiler, effigy-backed scorer, cross-project sweep |
-| `MEASUREMENTS.md` | what ran, on how much text, what it said |
+| `MEASUREMENTS.md` | what ran, on how much text, and what it said |
 
----
-
-`tools/generate_readme.py` wrote this README from prompt `cope-gate --author-docs` emits, checked with `cope-gate --check`.
+`tools/generate_readme.py` wrote this README from prompt `cope-gate --author-docs` emits, and `cope-gate --check` checked it.
 
 MIT. justin@justinstimatze.com

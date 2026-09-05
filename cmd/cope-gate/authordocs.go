@@ -62,6 +62,19 @@ type docsFacts struct {
 	TestNames     []string         `json:"card_test_names"`
 	Layout        []layoutFact     `json:"layout"`
 	Related       []relatedFact    `json:"related_projects"`
+	Clustering    clusterFact      `json:"violation_clustering"`
+}
+
+// clusterFact describes the second reading a report gives the same violations.
+// It is a fact rather than a section of prose because the two conditions and
+// the floor are the whole of it, and a page that describes every rule but not
+// how they are grouped tells a reader what fired and not what to do about it.
+type clusterFact struct {
+	PrintedBy  []string `json:"printed_by"`
+	Breadth    string   `json:"breadth_condition"`
+	Density    string   `json:"density_condition"`
+	Precedence string   `json:"when_both_hold"`
+	Why        string   `json:"why"`
 }
 
 // gateFact describes a condition the card uses to narrow an injection, so the
@@ -241,7 +254,7 @@ var shapeRules = []shapeFact{
 	{"loop_ask", "structure", "loop", "an unattended run ends by asking, so the answer lands in a log and the next iteration reads the question as an instruction to itself"},
 	{"echoed_heading", "structure", "", "a heading of two or more content words whose first sentence below repeats every one of them, spending a line to say what the heading already said"},
 	{"repeated_opening", "voicing", "", "three or more sentences in one reply opening on the same two words. cross_turn_repeat reads the session window for a construction reused across turns; this one reads a reply against itself, and two is left alone because two is a rhythm"},
-	{"fragment_run", "voicing", "", "three consecutive sentences of five words or fewer with no finite verb in any of them. One fragment is emphasis and this repo's own register is full of them; a run of three is the staccato blind judges read as generated, and a card written to sound clipped declines it with @gate"},
+	{"fragment_run", "voicing", "", "three consecutive sentences of five words or fewer with no finite verb in any of them. One fragment is emphasis and this repo's own register is full of them; a run of three is the staccato blind judges read as generated. Neither clipped demo card trips it, so neither declines it; a card that wants the run says so with @gate"},
 }
 
 type shapeFact struct {
@@ -343,6 +356,18 @@ func collectFacts(c *scan.Card, fs *flag.FlagSet) docsFacts {
 			{"demo/", "this README written again under each demo card"},
 			{"tools/", "card compiler, effigy-backed scorer, cross-project sweep"},
 			{"MEASUREMENTS.md", "what was run, on how much text, and what it said"},
+		},
+		Clustering: clusterFact{
+			PrintedBy:  []string{"the Stop hook", "--check", "--pretool"},
+			Breadth:    "three or more distinct rules land on one paragraph",
+			Density:    "one rule lands on one paragraph three or more times",
+			Precedence: "breadth, since naming three rules tells a reader to rewrite the block rather than hunt one construction",
+			Why: "every rule fires on its own and knows nothing about the others, so a report is a flat list a reader works down hit by hit. " +
+				"Three hits across three paragraphs are three small edits; three inside one paragraph are one paragraph to write again. " +
+				"The density half has a measurement behind it: --check over 107 tracked documents produced 114 flip hits of which seven " +
+				"were worth changing, and every one of the seven was visible as three in a paragraph rather than as anything about the form. " +
+				"Three is the floor on both conditions because two rules on a paragraph is ordinary and two hits of one is a coincidence a " +
+				"reader can see unaided. Nothing about what fires or how it is scored changes",
 		},
 		Related: []relatedFact{
 			{"caveman", "https://github.com/JuliusBrussee/caveman",
@@ -615,8 +640,12 @@ for the reader to act on so a rule about replies has something to match.
    install section carries one sentence each and no more, and the two must not
    read as the same two paragraphs twice.
 7. Why effigy notation, in two or three sentences from facts.related_projects,
-   and why basanite is the wrong instrument for this in one more. A reader who
-   knows neither project should still follow it.
+   then every other entry in that list, one or two sentences each from its own
+   how_it_relates. Name all of them. The list is the map of what else exists
+   around this problem and which tool a reader wants instead of this one, so a
+   page carrying two of four sends the other two's readers nowhere — and the
+   list has grown twice without this instruction noticing. A reader who knows
+   none of the projects should still follow it.
 8. The rules, grouped by facts.axes rather than by where they are implemented.
    Two lists: the voicing rules and the structure rules, each rule stated from
    facts.shape_rules and facts.regex_rules_in_shipped_card verbatim in
@@ -641,10 +670,15 @@ for the reader to act on so a rule about replies has something to match.
    have. If the two differ and the difference is worth a clause, say whose is
    whose; otherwise state the shipped number and leave the other out. Use the basanite boundary in
    facts.related_projects here: a reader who expects a long list of banned
-   phrases should learn that the list lives in another tool on purpose. Close
-   with facts.lanes, which is the one place the structure rules do vary — not by
+   phrases should learn that the list lives in another tool on purpose. Then
+   facts.lanes, which is the one place the structure rules do vary — not by
    card, by who is going to read the turn. State which rules the loop lane drops
    and adds and why, from the fact's own wording.
+   Close with facts.violation_clustering: both conditions, the floor, which one
+   wins when both hold, and the measurement in its why. This is what a reader
+   sees at the bottom of a report and nothing above it on the page explains,
+   since every other section describes a rule firing rather than what reading
+   several of them together says.
 9. The flag table, from facts.flags verbatim. Do not paraphrase a default.
 10. What lands on disk, from facts.state_files. State plainly that the log
    quotes replies back.

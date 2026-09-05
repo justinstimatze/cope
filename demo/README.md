@@ -14,14 +14,14 @@ generator, same model. What you can count on the page:
 <!-- side-by-side:start -->
 | | `claude_maximal` | `claude_voice` |
 |---|---|---|
-| paragraphs opening on a bold label | 58 | 2 |
-| em dashes | 92 | 36 |
-| headings carrying an emoji | 15 | 0 |
-| horizontal rules | 19 | 1 |
-| tables for things that are not tabular | 4 | 0 |
-| blockquote callouts | 5 | 0 |
+| paragraphs opening on a bold label | 57 | 0 |
+| em dashes | 82 | 49 |
+| headings carrying an emoji | 14 | 0 |
+| horizontal rules | 20 | 1 |
+| tables for things that are not tabular | 5 | 0 |
+| blockquote callouts | 3 | 0 |
 | emoji in the body text | 16 | 0 |
-| sentences apologising or taking the blame | 23 | 0 |
+| sentences apologising or taking the blame | 18 | 0 |
 <!-- side-by-side:end -->
 
 The repository's front page is a demo render on purpose —
@@ -85,12 +85,12 @@ demonstrated brevity, which its own first line already says.
 <!-- sizes:start -->
 | Card | Output | Characters |
 |---|---|---|
-| `card/claude_voice.effigy` | [`README.claude-voice.md`](README.claude-voice.md) | 24,015 |
-| `card/demo/claude_maximal.effigy` | [`README.claude-maximal.md`](README.claude-maximal.md) | 36,519 |
-| `card/demo/precise.effigy` | [`README.precise.md`](README.precise.md) | 21,956 |
-| `card/demo/caveman.effigy` | [`README.caveman.md`](README.caveman.md) | 22,641 |
-| `card/demo/lecturer.effigy` | [`README.lecturer.md`](README.lecturer.md) | 26,529 |
-| `card/demo/fieldguide.effigy` | [`README.fieldguide.md`](README.fieldguide.md) | 23,167 |
+| `card/claude_voice.effigy` | [`README.claude-voice.md`](README.claude-voice.md) | 26,172 |
+| `card/demo/claude_maximal.effigy` | [`README.claude-maximal.md`](README.claude-maximal.md) | 39,718 |
+| `card/demo/precise.effigy` | [`README.precise.md`](README.precise.md) | 24,615 |
+| `card/demo/caveman.effigy` | [`README.caveman.md`](README.caveman.md) | 23,700 |
+| `card/demo/lecturer.effigy` | [`README.lecturer.md`](README.lecturer.md) | 30,153 |
+| `card/demo/fieldguide.effigy` | [`README.fieldguide.md`](README.fieldguide.md) | 26,072 |
 <!-- sizes:end -->
 
 `card/demo/handoff.effigy` is in the directory and not in the table. It is a
@@ -127,12 +127,12 @@ change and the way it changed is the useful part.
 <!-- scores:start -->
 | Page | scored by the shipped card | scored by its own card |
 |---|---|---|
-| [`README.claude-voice.md`](README.claude-voice.md) | 5 | the same card |
-| [`README.claude-maximal.md`](README.claude-maximal.md) | 17 | 6 |
-| [`README.precise.md`](README.precise.md) | 5 | 4 |
-| [`README.caveman.md`](README.caveman.md) | 16 | 16 |
-| [`README.lecturer.md`](README.lecturer.md) | 8 | 2 |
-| [`README.fieldguide.md`](README.fieldguide.md) | 16 | 6 |
+| [`README.claude-voice.md`](README.claude-voice.md) | 9 | the same card |
+| [`README.claude-maximal.md`](README.claude-maximal.md) | 28 | 16 |
+| [`README.precise.md`](README.precise.md) | 12 | 10 |
+| [`README.caveman.md`](README.caveman.md) | 19 | 19 |
+| [`README.lecturer.md`](README.lecturer.md) | 11 | 8 |
+| [`README.fieldguide.md`](README.fieldguide.md) | 23 | 6 |
 <!-- scores:end -->
 
 Read that table in two columns rather than one. The left one runs the shipped
@@ -157,8 +157,9 @@ None of that is markup. It is the prose, and the gate found all of it:
 <!-- maximal-hits:start -->
 | rule | hits on `claude_maximal` |
 |---|---|
-| `flip` | 7 |
-| `clause_symmetry` | 5 |
+| `flip` | 8 |
+| `clause_symmetry` | 8 |
+| `repeated_opening` | 7 |
 | `load_bearing` | 2 |
 | `worth_noting` | 2 |
 | `apology` | 1 |
@@ -195,7 +196,7 @@ hits comes from a sentence rather than from anything you can see at a glance.
 ## Most of the gate never fires on a document
 
 <!-- totals:start -->
-Across 6 renders and 154,827 characters, 7 of the 16 rules fired at all: `labelled_opening` 32, `clause_symmetry` 21, `flip` 8, `load_bearing` 2, `worth_noting` 2, `apology` 1, `ask_not_last` 1.
+Across 6 renders and 170,430 characters, 8 of the 19 rules fired at all: `labelled_opening` 36, `clause_symmetry` 29, `repeated_opening` 19, `flip` 12, `load_bearing` 2, `worth_noting` 2, `apology` 1, `ask_not_last` 1.
 <!-- totals:end -->
 
 Two of them carry it and the rest are a long tail. Nothing else in the gate
