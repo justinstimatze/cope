@@ -35,3 +35,6 @@ discriminate.html
 
 # local backlog — ideas and held-back work, not part of the release
 BACKLOG.md
+
+# The built hook binary. `make` and `go build -o cope-gate` both land it here.
+cope-gate
